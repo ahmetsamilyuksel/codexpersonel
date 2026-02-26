@@ -291,8 +291,8 @@ async function main() {
   // ==================== DOCUMENT TYPES ====================
   const documentTypes = [
     { code: 'PASSPORT', nameTr: 'Pasaport', nameRu: 'Паспорт', nameEn: 'Passport', category: 'IDENTITY', hasExpiry: true, defaultAlertDays: 90, sortOrder: 1 },
-    { code: 'MIGRATION_CARD', nameTr: 'Migration Card', nameRu: 'Миграционная карта', nameEn: 'Migration Card', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 30, sortOrder: 2 },
-    { code: 'REGISTRATION', nameTr: 'Registration', nameRu: 'Регистрация', nameEn: 'Registration', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 30, sortOrder: 3 },
+    { code: 'MIGRATION_CARD', nameTr: 'Göç Kartı', nameRu: 'Миграционная карта', nameEn: 'Migration Card', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 30, sortOrder: 2 },
+    { code: 'REGISTRATION', nameTr: 'Kayıt (Регистрация)', nameRu: 'Регистрация', nameEn: 'Registration', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 30, sortOrder: 3 },
     { code: 'PATENT', nameTr: 'Patent', nameRu: 'Патент', nameEn: 'Work Patent', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 60, sortOrder: 4 },
     { code: 'VISA', nameTr: 'Vize', nameRu: 'Виза', nameEn: 'Visa', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 60, sortOrder: 5 },
     { code: 'WORK_PERMIT', nameTr: 'Çalışma İzni', nameRu: 'Разрешение на работу', nameEn: 'Work Permit', category: 'IMMIGRATION', hasExpiry: true, defaultAlertDays: 90, sortOrder: 6 },

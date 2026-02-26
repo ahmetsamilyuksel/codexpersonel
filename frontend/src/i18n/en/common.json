@@ -297,6 +297,8 @@
     "addNew": "Add New Document",
     "documentType": "Document Type",
     "documentNo": "Document No",
+    "number": "Document No",
+    "type": "Document Type",
     "issuedBy": "Issued By",
     "issueDate": "Issue Date",
     "expiryDate": "Expiry Date",
@@ -305,8 +307,13 @@
     "expired": "Expired",
     "expiringSoon": "Expiring Soon",
     "missing": "Missing",
+    "upload": "Upload",
     "uploadFile": "Upload File",
-    "version": "Version"
+    "version": "Version",
+    "files": "Files",
+    "noFiles": "No files uploaded yet",
+    "uploading": "Uploading...",
+    "deleteConfirm": "Are you sure you want to delete this file?"
   },
   "asset": {
     "title": "Assets",

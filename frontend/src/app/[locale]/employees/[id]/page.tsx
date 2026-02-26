@@ -15,6 +15,7 @@ import {
   ArrowLeft, Save, User, IdCard, Briefcase, Building2, Wallet,
   FileText, Clock, Calendar, Package, ArrowRightLeft, Upload,
 } from 'lucide-react'
+import { DocumentsTab } from '@/components/employee/documents-tab'
 
 type Tab = 'general' | 'identity' | 'workStatus' | 'employment' | 'salary' | 'documents' | 'attendance' | 'leaves' | 'assets' | 'transfers'
 
@@ -451,42 +452,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
         )}
 
         {activeTab === 'documents' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{t('document.title')}</span>
-                <Button variant="outline"><Upload className="h-4 w-4 mr-1" />{t('document.upload')}</Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {documents.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">{t('common.noData')}</p>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="p-3 text-left">{t('document.type')}</th>
-                      <th className="p-3 text-left">{t('document.number')}</th>
-                      <th className="p-3 text-left">{t('document.issueDate')}</th>
-                      <th className="p-3 text-left">{t('document.expiryDate')}</th>
-                      <th className="p-3 text-left">{t('common.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {documents.map((doc: any) => (
-                      <tr key={doc.id} className="border-t hover:bg-muted/50">
-                        <td className="p-3">{getLocalizedName(doc.documentType, localeStore.locale)}</td>
-                        <td className="p-3 font-mono text-xs">{doc.documentNo || '-'}</td>
-                        <td className="p-3">{doc.issueDate?.slice(0, 10) || '-'}</td>
-                        <td className="p-3">{doc.expiryDate?.slice(0, 10) || '-'}</td>
-                        <td className="p-3"><Badge variant={doc.status === 'VALID' ? 'success' : doc.status === 'EXPIRED' ? 'destructive' : 'warning'}>{doc.status}</Badge></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </CardContent>
-          </Card>
+          <DocumentsTab employeeId={id} workStatusType={employee?.workStatus?.workStatusType} />
         )}
 
         {activeTab === 'attendance' && (

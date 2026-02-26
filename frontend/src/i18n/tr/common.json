@@ -297,6 +297,8 @@
     "addNew": "Yeni Belge Ekle",
     "documentType": "Belge Türü",
     "documentNo": "Belge No",
+    "number": "Belge No",
+    "type": "Belge Türü",
     "issuedBy": "Veren Kurum",
     "issueDate": "Veriliş Tarihi",
     "expiryDate": "Son Geçerlilik Tarihi",
@@ -305,8 +307,13 @@
     "expired": "Süresi Dolmuş",
     "expiringSoon": "Süresi Yaklaşıyor",
     "missing": "Eksik",
+    "upload": "Yükle",
     "uploadFile": "Dosya Yükle",
-    "version": "Versiyon"
+    "version": "Versiyon",
+    "files": "Dosyalar",
+    "noFiles": "Henüz dosya yüklenmemiş",
+    "uploading": "Yükleniyor...",
+    "deleteConfirm": "Bu dosyayı silmek istediğinize emin misiniz?"
   },
   "asset": {
     "title": "Zimmetler",
