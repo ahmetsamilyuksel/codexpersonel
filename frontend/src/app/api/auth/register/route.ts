@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password)
 
     // ── Create user + assign roles in a transaction ─────────────────
-    const newUser = await prisma.$transaction(async (tx: typeof prisma) => {
+    const newUser = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email: email.toLowerCase().trim(),
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
           },
         },
       })
-    }) as CreatedUser | null
+    }) as unknown as CreatedUser | null
 
     // ── Audit log ───────────────────────────────────────────────────
     const ipAddress =
