@@ -279,9 +279,9 @@ async function main() {
 
   // ==================== SHIFTS ====================
   const shifts = [
-    { code: 'GUNDUZ', nameTr: 'Gündüz', nameRu: 'Дневная', nameEn: 'Day Shift', startTime: '08:00', endTime: '17:00', breakMinutes: 60, isNightShift: false, sortOrder: 1 },
-    { code: 'GECE', nameTr: 'Gece', nameRu: 'Ночная', nameEn: 'Night Shift', startTime: '20:00', endTime: '08:00', breakMinutes: 60, isNightShift: true, sortOrder: 2 },
-    { code: 'UZUN', nameTr: 'Uzun Mesai', nameRu: 'Длинная смена', nameEn: 'Long Shift', startTime: '07:00', endTime: '19:00', breakMinutes: 90, isNightShift: false, sortOrder: 3 },
+    { code: 'GUNDUZ', nameTr: 'Gündüz', nameRu: 'Дневная', nameEn: 'Day Shift', startTime: '08:00', endTime: '17:00', breakMinutes: 60, isNightShift: false },
+    { code: 'GECE', nameTr: 'Gece', nameRu: 'Ночная', nameEn: 'Night Shift', startTime: '20:00', endTime: '08:00', breakMinutes: 60, isNightShift: true },
+    { code: 'UZUN', nameTr: 'Uzun Mesai', nameRu: 'Длинная смена', nameEn: 'Long Shift', startTime: '07:00', endTime: '19:00', breakMinutes: 90, isNightShift: false },
   ]
   for (const s of shifts) {
     await prisma.shift.upsert({ where: { code: s.code }, update: {}, create: s })
