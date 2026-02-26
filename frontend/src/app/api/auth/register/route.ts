@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
           },
         },
       })
-    }) as CreatedUser | null
+    }) as unknown as CreatedUser | null
 
     // ── Audit log ───────────────────────────────────────────────────
     const ipAddress =
