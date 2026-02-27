@@ -21,8 +21,8 @@ const AZ_LAST = ['Mammadov','Aliyev','Hasanov','Huseynov','Guliyev','Ismayilov',
 const TM_MALE = ['Nurmuhammed','Merdan','Gurban','Dovlet','Yazmurad','Batyr','Mekan','Serdar','Ashyr','Muhammet']
 const TM_LAST = ['Durdyev','Berdyev','Annayev','Charyyev','Ovezmyradov','Rejepov','Nuryyev','Gurbanov','Sapargeldyyev','Myradov']
 
-const PROF_CODES = ['WELDER','ELECTRICIAN','MASON','PLUMBER','LABORER','PAINTER','FOREMAN','ENGINEER','CRANE_OP','SAFETY','ADMIN','CARPENTER','INSULATOR','REBAR','CONCRETE','SURVEYOR']
-const DEPT_CODES = ['CONSTRUCTION','ELECTRICAL','MECHANICAL','FINISHING','ENGINEERING','SAFETY','ADMIN','MACHINERY']
+const PROF_CODES = ['ISCI','USTA','KALIPCI','DEMIRCI','BETONCU','KAYNAK','ELEKTRIK','TESISAT','OPERATOR','SOFOR','FORMEN','MUHENDIS','MIMAR','OFIS','BOYACI','IZOLASYON']
+const DEPT_CODES = ['YONETIM','IK','MUHASEBE','INSAAT','MEKANIK','ELEKTRIK','LOJISTIK','GUVENLIK']
 const NAT_CODES = ['TR','UZ','TJ','KG','RU','AZ','TM']
 const WORK_STATUS_TYPES = ['LOCAL','PATENT','VISA','WORK_PERMIT','RESIDENCE_PERMIT']
 
