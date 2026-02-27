@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useLocaleStore } from '@/store/locale-store'
 import { useThemeStore } from '@/store/theme-store'
 import { useTranslations } from '@/hooks/use-translations'
@@ -20,8 +20,22 @@ export function Header() {
   const router = useRouter()
   const pathname = usePathname()
 
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const changeLocale = (newLocale: Locale) => {
     setLocale(newLocale)
+    setLangOpen(false)
     if (pathname) {
       const newPath = pathname.replace(`/${locale}`, `/${newLocale}`)
       router.push(newPath)
@@ -46,25 +60,27 @@ export function Header() {
         </Button>
 
         {/* Language selector */}
-        <div className="relative group">
-          <Button variant="ghost" size="sm" className="gap-1.5">
+        <div className="relative" ref={langRef}>
+          <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => setLangOpen(!langOpen)}>
             <Globe className="h-4 w-4" />
             <span className="text-xs">{localeFlags[locale]}</span>
           </Button>
-          <div className="absolute right-0 top-full mt-1 bg-card border rounded-md shadow-lg py-1 min-w-[140px] hidden group-hover:block">
-            {(Object.entries(localeLabels) as [Locale, string][]).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => changeLocale(key)}
-                className={`flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-muted transition-colors cursor-pointer ${
-                  locale === key ? 'font-medium text-primary' : ''
-                }`}
-              >
-                <span>{localeFlags[key]}</span>
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
+          {langOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-card border rounded-md shadow-lg py-1 min-w-[140px] z-50">
+              {(Object.entries(localeLabels) as [Locale, string][]).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => changeLocale(key)}
+                  className={`flex items-center gap-2 w-full px-3 py-1.5 text-sm hover:bg-muted transition-colors cursor-pointer ${
+                    locale === key ? 'font-medium text-primary' : ''
+                  }`}
+                >
+                  <span>{localeFlags[key]}</span>
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </header>
