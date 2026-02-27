@@ -14,14 +14,15 @@ import { useLocaleStore, getLocalizedName } from '@/store/locale-store'
 import apiClient from '@/lib/api-client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  Plus,
-  Search,
-  Download,
-  Upload,
-  Users,
-  X,
-  Check,
+  Plus, Search, Download, Upload, Users, X, Check,
+  UserCheck, UserX, Globe, Briefcase, BarChart3, Building2,
 } from 'lucide-react'
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Legend,
+} from 'recharts'
+
+const COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#f97316','#14b8a6','#6366f1']
 
 interface EmployeeRow {
   id: string
@@ -53,6 +54,7 @@ export default function EmployeesPage() {
   const [statusFilter, setStatusFilter] = useState('ACTIVE')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [showAdd, setShowAdd] = useState(false)
+  const [showStats, setShowStats] = useState(true)
   const [formError, setFormError] = useState('')
   const [importStatus, setImportStatus] = useState('')
   const [newEmployee, setNewEmployee] = useState({
@@ -81,6 +83,15 @@ export default function EmployeesPage() {
       if (statusFilter) params.set('status', statusFilter)
       const res = await apiClient.get(`/employees?${params}`)
       return res.data
+    },
+  })
+
+  // Employee statistics
+  const { data: empStatsData } = useQuery({
+    queryKey: ['employee-stats'],
+    queryFn: async () => {
+      const res = await apiClient.get('/dashboard/stats')
+      return res.data?.data
     },
   })
 
@@ -315,6 +326,14 @@ export default function EmployeesPage() {
             <HelpTooltip helpKey="employeeNo" />
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant={showStats ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowStats(!showStats)}
+            >
+              <BarChart3 className="h-4 w-4 mr-1" />
+              {t('common.view')}
+            </Button>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="h-4 w-4 mr-1" />
               {t('common.export')}
@@ -329,6 +348,162 @@ export default function EmployeesPage() {
             </Button>
           </div>
         </div>
+
+        {/* Statistics Section */}
+        {showStats && empStatsData && (
+          <>
+            {/* KPI Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card>
+                <CardContent className="pt-3 pb-3">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-8 w-8 text-blue-600 opacity-70" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.totalEmployees')}</p>
+                      <p className="text-2xl font-bold">{empStatsData.totalEmployees || 0}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-3 pb-3">
+                  <div className="flex items-center gap-3">
+                    <UserCheck className="h-8 w-8 text-green-600 opacity-70" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.activeEmployees')}</p>
+                      <p className="text-2xl font-bold text-green-600">{empStatsData.activeEmployees || 0}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-3 pb-3">
+                  <div className="flex items-center gap-3">
+                    <Building2 className="h-8 w-8 text-purple-600 opacity-70" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.byWorksite')}</p>
+                      <p className="text-2xl font-bold text-purple-600">{empStatsData.totalWorksites || 0}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-3 pb-3">
+                  <div className="flex items-center gap-3">
+                    <UserX className="h-8 w-8 text-red-500 opacity-70" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{t('common.terminated')}</p>
+                      <p className="text-2xl font-bold text-red-500">
+                        {empStatsData.byStatus?.find((s: any) => s.status === 'TERMINATED')?.count || 0}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* By Nationality */}
+              <Card>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm flex items-center gap-1.5">
+                    <Globe className="h-4 w-4" />
+                    {t('dashboard.byNationality')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {empStatsData.byNationality?.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={empStatsData.byNationality.map((n: any, i: number) => ({ name: n.name, value: n.count, fill: COLORS[i % COLORS.length] }))}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={75}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {empStatsData.byNationality.map((_: any, i: number) => (
+                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8 text-sm">{t('common.noData')}</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* By Worksite */}
+              <Card>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm flex items-center gap-1.5">
+                    <Building2 className="h-4 w-4" />
+                    {t('dashboard.byWorksite')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {empStatsData.bySite?.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={empStatsData.bySite.map((s: any) => ({ name: s.name.length > 12 ? s.name.slice(0, 10) + '..' : s.name, count: s.count }))}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8 text-sm">{t('common.noData')}</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* By Status */}
+              <Card>
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-sm flex items-center gap-1.5">
+                    <Briefcase className="h-4 w-4" />
+                    {t('dashboard.byStatus')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {empStatsData.byStatus?.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={empStatsData.byStatus.map((s: any) => ({
+                            name: t(`common.${s.status.toLowerCase()}`),
+                            value: s.count,
+                            fill: s.status === 'ACTIVE' ? '#10b981' : s.status === 'TERMINATED' ? '#ef4444' : s.status === 'ON_LEAVE' ? '#f59e0b' : '#94a3b8',
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={75}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {empStatsData.byStatus.map((s: any, i: number) => (
+                            <Cell key={i} fill={s.status === 'ACTIVE' ? '#10b981' : s.status === 'TERMINATED' ? '#ef4444' : s.status === 'ON_LEAVE' ? '#f59e0b' : '#94a3b8'} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8 text-sm">{t('common.noData')}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
 
         {importStatus && (
           <div className="rounded-md bg-primary/10 p-2 text-sm text-primary">{importStatus}</div>

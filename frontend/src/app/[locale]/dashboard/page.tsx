@@ -1,21 +1,22 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/app-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { useTranslations } from '@/hooks/use-translations'
 import apiClient from '@/lib/api-client'
 import {
-  Users,
-  Building2,
-  AlertTriangle,
-  FileWarning,
-  Clock,
-  Wallet,
-  Package,
-  TrendingUp,
+  Users, Building2, AlertTriangle, FileWarning, Clock, Wallet,
+  Package, TrendingUp, UserCheck, UserX, Globe, Briefcase,
+  ArrowRight, Shield, CalendarDays, Activity,
 } from 'lucide-react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend, AreaChart, Area, RadialBarChart, RadialBar,
+} from 'recharts'
 
 interface DashboardStats {
   totalEmployees: number
@@ -33,168 +34,343 @@ interface DashboardStats {
   upcomingExpiries: { employeeName: string; documentType: string; expiryDate: string; daysLeft: number }[]
 }
 
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316', '#14b8a6', '#6366f1']
+const STATUS_COLORS: Record<string, string> = {
+  ACTIVE: '#10b981', INACTIVE: '#94a3b8', TERMINATED: '#ef4444', ON_LEAVE: '#f59e0b',
+}
+
 export default function DashboardPage() {
-  const { t } = useTranslations()
+  const { t, locale } = useTranslations()
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [seedLoading, setSeedLoading] = useState(false)
 
-  useEffect(() => {
-    loadStats()
-  }, [])
+  useEffect(() => { loadStats() }, [])
 
   const loadStats = async () => {
     try {
       const { data } = await apiClient.get('/dashboard/stats')
       if (data.success) setStats(data.data)
-    } catch {
-      // Dashboard stats may not be available yet
-    } finally {
-      setLoading(false)
-    }
+    } catch {} finally { setLoading(false) }
   }
 
-  const statCards = [
-    { key: 'totalEmployees', icon: Users, value: stats?.totalEmployees || 0, color: 'text-blue-600' },
-    { key: 'activeEmployees', icon: Users, value: stats?.activeEmployees || 0, color: 'text-green-600' },
-    { key: 'byWorksite', icon: Building2, value: stats?.totalWorksites || 0, color: 'text-purple-600' },
-    { key: 'upcomingExpiries', icon: AlertTriangle, value: stats?.criticalAlerts || 0, color: 'text-red-600' },
-    { key: 'missingDocuments', icon: FileWarning, value: stats?.missingDocuments || 0, color: 'text-orange-600' },
-    { key: 'attendanceGaps', icon: Clock, value: stats?.attendanceGaps || 0, color: 'text-yellow-600' },
-    { key: 'monthlyPayroll', icon: Wallet, value: stats?.monthlyPayroll || 0, color: 'text-emerald-600', isCurrency: true },
-    { key: 'openAssets', icon: Package, value: stats?.openAssets || 0, color: 'text-cyan-600' },
+  const handleSeedDemo = async () => {
+    setSeedLoading(true)
+    try {
+      await apiClient.post('/seed-demo')
+      await loadStats()
+    } catch {} finally { setSeedLoading(false) }
+  }
+
+  const fmtCurrency = (v: number) =>
+    new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(v)
+
+  const totalEmps = stats?.totalEmployees || 0
+  const activeEmps = stats?.activeEmployees || 0
+  const inactiveEmps = totalEmps - activeEmps
+
+  // Pie data for employee status
+  const statusData = stats?.byStatus?.map(s => ({
+    name: t(`common.${s.status.toLowerCase()}`),
+    value: s.count,
+    fill: STATUS_COLORS[s.status] || '#94a3b8',
+  })) || []
+
+  // Bar data for worksites
+  const siteData = stats?.bySite?.map(s => ({
+    name: s.name.length > 20 ? s.name.slice(0, 18) + '...' : s.name,
+    count: s.count,
+  })) || []
+
+  // Nationality data for pie
+  const natData = stats?.byNationality?.map((n, i) => ({
+    name: n.name,
+    value: n.count,
+    fill: COLORS[i % COLORS.length],
+  })) || []
+
+  // Radial bar for key metrics
+  const gaugeData = [
+    { name: t('dashboard.activeEmployees'), value: activeEmps, fill: '#10b981' },
+    { name: t('dashboard.totalEmployees'), value: totalEmps, fill: '#3b82f6' },
   ]
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
-          <p className="text-muted-foreground text-sm mt-1">SAELA {t('app.name')}</p>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
+            <p className="text-muted-foreground text-sm mt-1">SAELA {t('app.name')}</p>
+          </div>
+          {totalEmps === 0 && (
+            <Button onClick={handleSeedDemo} loading={seedLoading} variant="default">
+              <Activity className="h-4 w-4 mr-2" />
+              Demo Veri Yükle (150 Çalışan)
+            </Button>
+          )}
         </div>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statCards.map((card) => (
-            <Card key={card.key}>
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t(`dashboard.${card.key}`)}</p>
-                    <p className="text-2xl font-bold mt-1">
-                      {card.isCurrency
-                        ? new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(card.value)
-                        : card.value}
-                    </p>
-                  </div>
-                  <card.icon className={`h-8 w-8 ${card.color} opacity-80`} />
+        {/* KPI Cards - 2 rows */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="cursor-pointer hover:border-blue-500/50" onClick={() => router.push(`/${locale}/employees`)}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.totalEmployees')}</p>
+                  <p className="text-3xl font-bold text-blue-600">{totalEmps}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <Users className="h-10 w-10 text-blue-600 opacity-60" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-green-500/50" onClick={() => router.push(`/${locale}/employees`)}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.activeEmployees')}</p>
+                  <p className="text-3xl font-bold text-green-600">{activeEmps}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {totalEmps > 0 ? `${Math.round(activeEmps / totalEmps * 100)}%` : '0%'}
+                  </p>
+                </div>
+                <UserCheck className="h-10 w-10 text-green-600 opacity-60" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-purple-500/50" onClick={() => router.push(`/${locale}/worksites`)}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.byWorksite')}</p>
+                  <p className="text-3xl font-bold text-purple-600">{stats?.totalWorksites || 0}</p>
+                </div>
+                <Building2 className="h-10 w-10 text-purple-600 opacity-60" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-emerald-500/50" onClick={() => router.push(`/${locale}/payroll`)}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.monthlyPayroll')}</p>
+                  <p className="text-xl font-bold text-emerald-600">{fmtCurrency(stats?.monthlyPayroll || 0)}</p>
+                </div>
+                <Wallet className="h-10 w-10 text-emerald-600 opacity-60" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Alert Cards Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="cursor-pointer hover:border-red-500/50 border-l-4 border-l-red-500" onClick={() => router.push(`/${locale}/alerts`)}>
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-6 w-6 text-red-500" />
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('alert.critical')}</p>
+                  <p className="text-xl font-bold text-red-600">{stats?.criticalAlerts || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-orange-500/50 border-l-4 border-l-orange-500" onClick={() => router.push(`/${locale}/alerts`)}>
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center gap-3">
+                <FileWarning className="h-6 w-6 text-orange-500" />
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.missingDocuments')}</p>
+                  <p className="text-xl font-bold text-orange-600">{stats?.missingDocuments || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-yellow-500/50 border-l-4 border-l-yellow-500" onClick={() => router.push(`/${locale}/attendance`)}>
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center gap-3">
+                <Clock className="h-6 w-6 text-yellow-500" />
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.attendanceGaps')}</p>
+                  <p className="text-xl font-bold text-yellow-600">{stats?.attendanceGaps || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:border-cyan-500/50 border-l-4 border-l-cyan-500" onClick={() => router.push(`/${locale}/assets`)}>
+            <CardContent className="pt-3 pb-3">
+              <div className="flex items-center gap-3">
+                <Package className="h-6 w-6 text-cyan-500" />
+                <div>
+                  <p className="text-xs text-muted-foreground">{t('dashboard.openAssets')}</p>
+                  <p className="text-xl font-bold text-cyan-600">{stats?.openAssets || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts Row 1 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Employee Status Pie */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4 text-primary" />
+                {t('dashboard.byStatus')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statusData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={3}
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}`}
+                    >
+                      {statusData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-center text-muted-foreground py-12">{t('common.noData')}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Nationality Pie */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                {t('dashboard.byNationality')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {natData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <PieChart>
+                    <Pie
+                      data={natData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}`}
+                    >
+                      {natData.map((entry, i) => (
+                        <Cell key={i} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-center text-muted-foreground py-12">{t('common.noData')}</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts Row 2 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Worksite Bar Chart */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                {t('dashboard.byWorksite')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {siteData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={siteData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={60} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-center text-muted-foreground py-12">{t('common.noData')}</p>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Upcoming Expiries */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 {t('dashboard.upcomingExpiries')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {stats?.upcomingExpiries && stats.upcomingExpiries.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.upcomingExpiries.slice(0, 10).map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <div>
+                <div className="space-y-2 max-h-[260px] overflow-y-auto">
+                  {stats.upcomingExpiries.slice(0, 15).map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm py-1 border-b last:border-0">
+                      <div className="min-w-0 flex-1">
                         <span className="font-medium">{item.employeeName}</span>
-                        <span className="text-muted-foreground ml-2">- {item.documentType}</span>
+                        <span className="text-muted-foreground ml-1 text-xs">- {item.documentType}</span>
                       </div>
-                      <Badge variant={item.daysLeft <= 7 ? 'destructive' : item.daysLeft <= 30 ? 'warning' : 'secondary'}>
+                      <Badge variant={item.daysLeft <= 0 ? 'destructive' : item.daysLeft <= 7 ? 'destructive' : item.daysLeft <= 30 ? 'warning' : 'secondary'} className="ml-2 shrink-0">
                         {item.daysLeft <= 0 ? t('alert.expired') : `${item.daysLeft} ${t('alert.daysLeft')}`}
                       </Badge>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-sm py-4 text-center">{t('common.noData')}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* By Worksite */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-primary" />
-                {t('dashboard.byWorksite')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.bySite && stats.bySite.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.bySite.map((site, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <span>{site.name}</span>
-                      <Badge variant="secondary">{site.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm py-4 text-center">{t('common.noData')}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* By Nationality */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                {t('dashboard.byNationality')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.byNationality && stats.byNationality.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.byNationality.map((nat, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <span>{nat.name}</span>
-                      <Badge variant="secondary">{nat.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm py-4 text-center">{t('common.noData')}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* By Work Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
-                {t('dashboard.byStatus')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.byStatus && stats.byStatus.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.byStatus.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <span>{t(`workStatus.${item.status.toLowerCase()}`)}</span>
-                      <Badge variant="secondary">{item.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm py-4 text-center">{t('common.noData')}</p>
+                <p className="text-center text-muted-foreground py-12">{t('common.noData')}</p>
               )}
             </CardContent>
           </Card>
         </div>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{t('dashboard.quickActions')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {[
+                { icon: Users, label: t('employee.addNew'), path: `/${locale}/employees`, color: 'text-blue-600' },
+                { icon: Clock, label: t('attendance.title'), path: `/${locale}/attendance`, color: 'text-green-600' },
+                { icon: Wallet, label: t('payroll.title'), path: `/${locale}/payroll`, color: 'text-emerald-600' },
+                { icon: FileWarning, label: t('document.title'), path: `/${locale}/documents`, color: 'text-orange-600' },
+                { icon: CalendarDays, label: t('leave.title'), path: `/${locale}/leaves`, color: 'text-purple-600' },
+                { icon: Shield, label: t('report.title'), path: `/${locale}/reports`, color: 'text-cyan-600' },
+              ].map((action) => (
+                <Button
+                  key={action.path}
+                  variant="outline"
+                  className="h-auto py-3 flex-col gap-2"
+                  onClick={() => router.push(action.path)}
+                >
+                  <action.icon className={`h-5 w-5 ${action.color}`} />
+                  <span className="text-xs">{action.label}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   )
