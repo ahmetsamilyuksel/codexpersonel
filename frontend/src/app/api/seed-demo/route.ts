@@ -455,6 +455,189 @@ export async function POST(request: NextRequest) {
       await prisma.employeeSiteTransfer.createMany({ data: transferRecords, skipDuplicates: true })
     }
 
+    // ===== EMPLOYEE TYPES (Hierarchy Levels) =====
+    const levelDefs = [
+      { code: 'WORKER', nameTr: 'İşçi', nameRu: 'Рабочий', nameEn: 'Worker', sortOrder: 1 },
+      { code: 'JOURNEYMAN', nameTr: 'Kalfa', nameRu: 'Подмастерье', nameEn: 'Journeyman', sortOrder: 2 },
+      { code: 'MASTER', nameTr: 'Usta', nameRu: 'Мастер', nameEn: 'Master', sortOrder: 3 },
+      { code: 'FOREMAN', nameTr: 'Ustabaşı', nameRu: 'Бригадир', nameEn: 'Foreman', sortOrder: 4 },
+      { code: 'ENGINEER', nameTr: 'Mühendis', nameRu: 'Инженер', nameEn: 'Engineer', sortOrder: 5 },
+      { code: 'MANAGER', nameTr: 'Müdür', nameRu: 'Начальник', nameEn: 'Manager', sortOrder: 6 },
+      { code: 'DIRECTOR', nameTr: 'Genel Müdür', nameRu: 'Генеральный директор', nameEn: 'Director', sortOrder: 7 },
+    ]
+    const levelIds: Record<string, string> = {}
+    for (const lv of levelDefs) {
+      const result = await prisma.employeeType.upsert({
+        where: { code: lv.code },
+        update: {},
+        create: lv,
+      })
+      levelIds[lv.code] = result.id
+    }
+
+    // Assign levels to employees based on profession/index
+    const levelAssignment = (idx: number): string => {
+      if (idx < 5) return 'DIRECTOR'       // 5 directors
+      if (idx < 15) return 'MANAGER'       // 10 managers
+      if (idx < 30) return 'ENGINEER'      // 15 engineers
+      if (idx < 50) return 'FOREMAN'       // 20 foremen
+      if (idx < 80) return 'MASTER'        // 30 masters
+      if (idx < 110) return 'JOURNEYMAN'   // 30 journeymen
+      return 'WORKER'                       // 40 workers
+    }
+
+    // Update employees with levels and supervisors
+    for (let idx = 0; idx < 150; idx++) {
+      const empId = empIdMap.get(idx)
+      if (!empId) continue
+      const levelCode = levelAssignment(idx)
+      const levelId = levelIds[levelCode]
+
+      // Find supervisor: directors have no supervisor, managers report to directors, etc.
+      let supervisorId: string | null = null
+      if (levelCode === 'MANAGER' && empIdMap.has(idx % 5)) supervisorId = empIdMap.get(idx % 5) || null
+      else if (levelCode === 'ENGINEER' && empIdMap.has(5 + idx % 10)) supervisorId = empIdMap.get(5 + idx % 10) || null
+      else if (levelCode === 'FOREMAN' && empIdMap.has(15 + idx % 15)) supervisorId = empIdMap.get(15 + idx % 15) || null
+      else if (levelCode === 'MASTER' && empIdMap.has(30 + idx % 20)) supervisorId = empIdMap.get(30 + idx % 20) || null
+      else if (levelCode === 'JOURNEYMAN' && empIdMap.has(50 + idx % 30)) supervisorId = empIdMap.get(50 + idx % 30) || null
+      else if (levelCode === 'WORKER' && empIdMap.has(80 + idx % 30)) supervisorId = empIdMap.get(80 + idx % 30) || null
+
+      await prisma.employee.update({
+        where: { id: empId },
+        data: { employeeTypeId: levelId },
+      })
+      if (supervisorId) {
+        await prisma.employeeEmployment.updateMany({
+          where: { employeeId: empId },
+          data: { supervisorId },
+        })
+      }
+    }
+
+    // ===== ATTENDANCE PERIODS =====
+    const periodStr = `${yr}-${String(mo).padStart(2, '0')}`
+    for (const wsId of worksiteIds.slice(0, 5)) {
+      await prisma.attendancePeriod.upsert({
+        where: { period_worksiteId: { period: periodStr, worksiteId: wsId } },
+        update: {},
+        create: { period: periodStr, worksiteId: wsId, status: 'OPEN' },
+      })
+    }
+
+    // ===== PAYROLL RUNS (last 3 months) =====
+    for (let mOff = 1; mOff <= 3; mOff++) {
+      const pm = new Date(yr, mo - 1 - mOff, 1)
+      const pStr = `${pm.getFullYear()}-${String(pm.getMonth() + 1).padStart(2, '0')}`
+      for (const wsId of worksiteIds.slice(0, 5)) {
+        const run = await prisma.payrollRun.upsert({
+          where: { period_worksiteId: { period: pStr, worksiteId: wsId } },
+          update: {},
+          create: {
+            period: pStr,
+            worksiteId: wsId,
+            status: mOff >= 2 ? 'PAID' : 'CALCULATED',
+            totalGross: 0,
+            totalNet: 0,
+            totalTax: 0,
+          },
+        })
+
+        // Add payroll items for employees at this worksite
+        const wsEmps = empDataList.filter(e => worksiteIds[e.idx % worksiteIds.length] === wsId && e.idx < 140)
+        const payrollItems: any[] = []
+        let totalGross = 0, totalNet = 0, totalTax = 0
+        for (const emp of wsEmps.slice(0, 20)) {
+          const empId = empIdMap.get(emp.idx)
+          if (!empId) continue
+          const base = emp.isMonthly ? emp.salary : emp.salary * 22
+          const gross = Math.round(base * 1.149)
+          const ndfl = Math.round(gross * (emp.wsType === 'LOCAL' ? 0.13 : 0.30))
+          const net = gross - ndfl
+          totalGross += gross; totalNet += net; totalTax += ndfl
+          payrollItems.push({
+            payrollRunId: run.id,
+            employeeId: empId,
+            baseSalary: base,
+            workedDays: 22,
+            workedHours: 176,
+            overtimeHours: emp.idx % 4 === 0 ? 12 : 0,
+            nightHours: emp.idx % 3 === 0 ? 16 : 0,
+            holidayHours: 0,
+            grossAmount: gross,
+            netAmount: net,
+            ndflAmount: ndfl,
+            totalEarnings: gross,
+            totalDeductions: ndfl,
+          })
+        }
+        if (payrollItems.length > 0) {
+          await prisma.payrollItem.createMany({ data: payrollItems, skipDuplicates: true })
+          await prisma.payrollRun.update({
+            where: { id: run.id },
+            data: { totalGross, totalNet, totalTax },
+          })
+        }
+      }
+    }
+
+    // ===== HAKKEDIS (Progress Billing - last 3 months per worksite) =====
+    const workItems = [
+      { name: 'Beton Döküm', unit: 'm³', price: 1200 },
+      { name: 'Demir İşleri', unit: 'ton', price: 8500 },
+      { name: 'Kalıp İşleri', unit: 'm²', price: 450 },
+      { name: 'Sıva İşleri', unit: 'm²', price: 180 },
+      { name: 'Boya Badana', unit: 'm²', price: 120 },
+      { name: 'Elektrik Tesisatı', unit: 'm', price: 250 },
+      { name: 'Su Tesisatı', unit: 'm', price: 200 },
+      { name: 'İzolasyon', unit: 'm²', price: 350 },
+    ]
+    for (let mOff = 1; mOff <= 3; mOff++) {
+      const hm = new Date(yr, mo - 1 - mOff, 1)
+      const hStr = `${hm.getFullYear()}-${String(hm.getMonth() + 1).padStart(2, '0')}`
+      for (const wsId of worksiteIds.slice(0, 5)) {
+        const totalAmt = workItems.reduce((sum, wi) => sum + wi.price * (10 + Math.random() * 50), 0)
+        const hak = await prisma.hakkedis.create({
+          data: {
+            worksiteId: wsId,
+            period: hStr,
+            status: mOff >= 2 ? 'APPROVED' : 'DRAFT',
+            totalAmount: Math.round(totalAmt),
+          },
+        }).catch(() => null)
+
+        if (hak) {
+          const satirs: any[] = []
+          for (const wi of workItems) {
+            const qty = 10 + Math.round(Math.random() * 50)
+            const total = qty * wi.price
+            // Distribute to a few workers
+            for (let e = 0; e < 3; e++) {
+              const empIdx = (worksiteIds.indexOf(wsId) * 30 + e * 10 + mOff) % 150
+              const empId = empIdMap.get(empIdx)
+              if (!empId) continue
+              const pct = e === 0 ? 50 : e === 1 ? 30 : 20
+              satirs.push({
+                hakkediId: hak.id,
+                employeeId: empId,
+                workItem: wi.name,
+                unit: wi.unit,
+                quantity: qty,
+                unitPrice: wi.price,
+                totalAmount: total,
+                teamName: `Ekip-${worksiteIds.indexOf(wsId) + 1}`,
+                distributionPercent: pct,
+                distributionAmount: Math.round(total * pct / 100),
+                date: new Date(hm.getFullYear(), hm.getMonth(), 15),
+              })
+            }
+          }
+          if (satirs.length > 0) {
+            await prisma.hakkedisSatir.createMany({ data: satirs, skipDuplicates: true })
+          }
+        }
+      }
+    }
+
     // Count results
     const [totalEmployees, totalAttendance, totalDocs] = await Promise.all([
       prisma.employee.count({ where: { employeeNo: { startsWith: 'DEMO-' } } }),
@@ -478,11 +661,23 @@ export async function POST(request: NextRequest) {
 }
 
 async function cleanupDemo() {
+  // Delete hakediş items linked to demo employees
+  await prisma.hakkedisSatir.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
+  // Delete empty hakediş records
+  const emptyHak = await prisma.hakkedis.findMany({ where: { items: { none: {} } } })
+  if (emptyHak.length > 0) {
+    await prisma.hakkedis.deleteMany({ where: { id: { in: emptyHak.map(h => h.id) } } })
+  }
+
   await prisma.attendanceRecord.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
   await prisma.leaveRequest.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
   await prisma.leaveBalance.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
-  await prisma.hakkedisSatir.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
   await prisma.payrollItem.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
+  // Delete empty payroll runs
+  const emptyRuns = await prisma.payrollRun.findMany({ where: { items: { none: {} } } })
+  if (emptyRuns.length > 0) {
+    await prisma.payrollRun.deleteMany({ where: { id: { in: emptyRuns.map(r => r.id) } } })
+  }
   await prisma.patentPayment.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
   await prisma.alert.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })
   await prisma.customFieldValue.deleteMany({ where: { employee: { employeeNo: { startsWith: 'DEMO-' } } } })

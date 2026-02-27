@@ -95,11 +95,20 @@ export default function TransfersPage() {
   const { data: employeesData } = useQuery({
     queryKey: ['employees-for-transfer'],
     queryFn: async () => {
-      const res = await apiClient.get('/employees?limit=500&status=ACTIVE')
+      const res = await apiClient.get('/employees?limit=500&status=ACTIVE&include=employment')
       return res.data
     },
     enabled: showAdd,
   })
+
+  // Auto-fill "from" worksite when employee is selected
+  const handleEmployeeChange = (employeeId: string) => {
+    setNewTransfer((p) => {
+      const emp = employees.find((e: any) => e.id === employeeId)
+      const fromWsId = emp?.employment?.worksiteId || ''
+      return { ...p, employeeId, fromWorksiteId: fromWsId }
+    })
+  }
 
   const { data: worksitesData } = useQuery({
     queryKey: ['worksites-list'],
@@ -128,7 +137,15 @@ export default function TransfersPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || t('common.createFailed'))
+      const code = err.response?.data?.error || ''
+      const errorMap: Record<string, string> = {
+        'UNAUTHORIZED': t('common.unauthorized'),
+        'FIELDS_REQUIRED': t('common.fieldsRequired'),
+        'EMPLOYEE_NOT_FOUND': t('common.employeeNotFound'),
+        'WORKSITE_NOT_FOUND': t('common.worksiteNotFound'),
+        'CREATE_FAILED': t('common.createFailed'),
+      }
+      setFormError(errorMap[code] || t('common.createFailed'))
     },
   })
 
@@ -313,7 +330,7 @@ export default function TransfersPage() {
                   <select
                     className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
                     value={newTransfer.employeeId}
-                    onChange={(e) => setNewTransfer((p) => ({ ...p, employeeId: e.target.value }))}
+                    onChange={(e) => handleEmployeeChange(e.target.value)}
                   >
                     <option value="">--</option>
                     {employees.map((emp: any) => (
@@ -325,12 +342,12 @@ export default function TransfersPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    {t('transfer.from')} <span className="text-destructive">*</span>
+                    {t('transfer.from')} ({t('employee.currentWorksite')})
                   </label>
                   <select
-                    className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+                    className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm bg-muted"
                     value={newTransfer.fromWorksiteId}
-                    onChange={(e) => setNewTransfer((p) => ({ ...p, fromWorksiteId: e.target.value }))}
+                    disabled
                   >
                     <option value="">--</option>
                     {worksites.map((ws: any) => (

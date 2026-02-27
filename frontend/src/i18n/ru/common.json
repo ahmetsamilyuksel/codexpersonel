@@ -104,7 +104,20 @@
     "createPayrollToBegin": "Создайте расчёт зарплаты для начала",
     "codeAndNameRequired": "Код и Наименование обязательны",
     "createFailed": "Не удалось создать",
-    "disposed": "Списано"
+    "disposed": "Списано",
+    "unauthorized": "Нет доступа",
+    "notFound": "Не найдено",
+    "employeeNotFound": "Сотрудник не найден",
+    "worksiteNotFound": "Объект не найден",
+    "fieldsRequired": "Обязательные поля не заполнены",
+    "fetchFailed": "Не удалось загрузить данные",
+    "saveFailed": "Не удалось сохранить",
+    "alreadyExists": "Эта запись уже существует",
+    "seedLoading": "Загрузка...",
+    "seedButton": "Загрузить демо-данные (150 сотрудников)",
+    "seedRefresh": "Обновить демо-данные",
+    "seedError": "Ошибка",
+    "success": "Успешно"
   },
   "auth": {
     "login": "Войти",
@@ -141,6 +154,17 @@
     "employeeType": "Тип сотрудника",
     "profession": "Профессия",
     "department": "Отдел",
+    "level": "Уровень",
+    "levelWorker": "Рабочий",
+    "levelJourneyman": "Подмастерье",
+    "levelMaster": "Мастер",
+    "levelForeman": "Бригадир",
+    "levelEngineer": "Инженер",
+    "levelManager": "Начальник",
+    "levelDirector": "Генеральный директор",
+    "supervisor": "Руководитель",
+    "hierarchy": "Иерархия",
+    "currentWorksite": "Текущий объект",
     "tabs": {
       "basic": "Основные данные",
       "identity": "Удостоверение личности",
@@ -335,7 +359,12 @@
     "files": "Файлы",
     "noFiles": "Файлы не загружены",
     "uploading": "Загрузка...",
-    "deleteConfirm": "Вы уверены, что хотите удалить этот файл?"
+    "deleteConfirm": "Вы уверены, что хотите удалить этот файл?",
+    "categoryIdentity": "Удостоверение",
+    "categoryImmigration": "Миграция",
+    "categoryEmployment": "Трудоустройство",
+    "categoryMedical": "Медицинские",
+    "categorySafety": "Охрана труда"
   },
   "asset": {
     "title": "Материальные ценности",

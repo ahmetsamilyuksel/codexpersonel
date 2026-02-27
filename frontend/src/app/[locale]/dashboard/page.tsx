@@ -122,14 +122,14 @@ export default function DashboardPage() {
           </div>
           <Button onClick={handleSeedDemo} loading={seedLoading} variant="default" disabled={seedLoading}>
             <Activity className="h-4 w-4 mr-2" />
-            {seedLoading ? 'Yükleniyor...' : totalEmps === 0 ? 'Demo Veri Yükle (150 Çalışan)' : 'Demo Veriyi Yenile'}
+            {seedLoading ? t('common.seedLoading') : totalEmps === 0 ? t('common.seedButton') : t('common.seedRefresh')}
           </Button>
         </div>
 
         {/* Seed feedback */}
         {seedError && (
           <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300 text-sm">
-            <strong>Hata:</strong> {seedError}
+            <strong>{t('common.seedError')}:</strong> {seedError}
           </div>
         )}
         {seedSuccess && (

@@ -104,7 +104,20 @@
     "createPayrollToBegin": "Başlamak için bordro çalıştırın",
     "codeAndNameRequired": "Kod ve Ad zorunludur",
     "createFailed": "Oluşturma başarısız oldu",
-    "disposed": "Elden Çıkarılmış"
+    "disposed": "Elden Çıkarılmış",
+    "unauthorized": "Yetkisiz erişim",
+    "notFound": "Bulunamadı",
+    "employeeNotFound": "Çalışan bulunamadı",
+    "worksiteNotFound": "Şantiye bulunamadı",
+    "fieldsRequired": "Zorunlu alanlar eksik",
+    "fetchFailed": "Veriler yüklenemedi",
+    "saveFailed": "Kaydetme başarısız oldu",
+    "alreadyExists": "Bu kayıt zaten mevcut",
+    "seedLoading": "Yükleniyor...",
+    "seedButton": "Demo Veri Yükle (150 Çalışan)",
+    "seedRefresh": "Demo Veriyi Yenile",
+    "seedError": "Hata",
+    "success": "Başarılı"
   },
   "auth": {
     "login": "Giriş Yap",
@@ -141,6 +154,17 @@
     "employeeType": "Çalışan Türü",
     "profession": "Meslek",
     "department": "Departman",
+    "level": "Seviye",
+    "levelWorker": "İşçi",
+    "levelJourneyman": "Kalfa",
+    "levelMaster": "Usta",
+    "levelForeman": "Ustabaşı",
+    "levelEngineer": "Mühendis",
+    "levelManager": "Müdür",
+    "levelDirector": "Genel Müdür",
+    "supervisor": "Bağlı Olduğu Kişi",
+    "hierarchy": "Hiyerarşi",
+    "currentWorksite": "Mevcut Şantiye",
     "tabs": {
       "basic": "Temel Bilgiler",
       "identity": "Kimlik Bilgileri",
@@ -335,7 +359,12 @@
     "files": "Dosyalar",
     "noFiles": "Henüz dosya yüklenmemiş",
     "uploading": "Yükleniyor...",
-    "deleteConfirm": "Bu dosyayı silmek istediğinize emin misiniz?"
+    "deleteConfirm": "Bu dosyayı silmek istediğinize emin misiniz?",
+    "categoryIdentity": "Kimlik",
+    "categoryImmigration": "Göçmenlik",
+    "categoryEmployment": "İstihdam",
+    "categoryMedical": "Sağlık",
+    "categorySafety": "İş Güvenliği"
   },
   "asset": {
     "title": "Zimmetler",

@@ -171,6 +171,6 @@ export async function GET(request: NextRequest) {
     return success(stats)
   } catch (err) {
     console.error('Dashboard stats error:', err)
-    return error('Failed to load dashboard stats', 500)
+    return error('FETCH_FAILED', 500)
   }
 }

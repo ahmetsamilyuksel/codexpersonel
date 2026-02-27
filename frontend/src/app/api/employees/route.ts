@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     return paginated(employees, total, page, limit)
   } catch (err: any) {
     console.error('GET /api/employees error:', err)
-    return error(err.message || 'Failed to fetch employees', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -186,9 +186,9 @@ export async function POST(request: NextRequest) {
     console.error('POST /api/employees error:', err)
 
     if (err.code === 'P2002') {
-      return error('An employee with this identifier already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
-    return error(err.message || 'Failed to create employee', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

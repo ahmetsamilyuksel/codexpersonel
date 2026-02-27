@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/transfers error:', err)
-    return error('Failed to fetch transfers', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -71,16 +71,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { employeeId, fromWorksiteId, toWorksiteId, transferDate, transferType } = body
 
     if (!employeeId || !fromWorksiteId || !toWorksiteId || !transferDate || !transferType) {
-      return error(
-        'Fields employeeId, fromWorksiteId, toWorksiteId, transferDate, transferType are required',
-        400
-      )
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Verify employee exists
@@ -89,7 +86,7 @@ export async function POST(request: NextRequest) {
       include: { employment: true },
     })
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('EMPLOYEE_NOT_FOUND', 404)
     }
 
     // Verify worksites exist
@@ -98,8 +95,8 @@ export async function POST(request: NextRequest) {
       prisma.worksite.findUnique({ where: { id: toWorksiteId } }),
     ])
 
-    if (!fromSite) return error('Source worksite not found', 404)
-    if (!toSite) return error('Destination worksite not found', 404)
+    if (!fromSite) return error('WORKSITE_NOT_FOUND', 404)
+    if (!toSite) return error('WORKSITE_NOT_FOUND', 404)
 
     const transfer = await prisma.$transaction(async (tx: any) => {
       const created = await tx.employeeSiteTransfer.create({
@@ -165,6 +162,6 @@ export async function POST(request: NextRequest) {
     return success(transfer, 201)
   } catch (err) {
     console.error('POST /api/transfers error:', err)
-    return error('Failed to create transfer', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

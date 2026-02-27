@@ -147,7 +147,7 @@ export default function DocumentsPage() {
         <div>
           <span className="text-sm">{getLocalizedName(item.documentType, currentLocale)}</span>
           <Badge variant="outline" className="ml-2 text-xs">
-            {item.documentType.category}
+            {t(`document.category${item.documentType.category.charAt(0) + item.documentType.category.slice(1).toLowerCase()}`)}
           </Badge>
         </div>
       ),
@@ -297,11 +297,11 @@ export default function DocumentsPage() {
                 onChange={(e) => { setCategoryFilter(e.target.value); setPage(1) }}
               >
                 <option value="">{t('common.all')} {t('common.category')}</option>
-                <option value="IDENTITY">IDENTITY</option>
-                <option value="IMMIGRATION">IMMIGRATION</option>
-                <option value="EMPLOYMENT">EMPLOYMENT</option>
-                <option value="MEDICAL">MEDICAL</option>
-                <option value="SAFETY">SAFETY</option>
+                <option value="IDENTITY">{t('document.categoryIdentity')}</option>
+                <option value="IMMIGRATION">{t('document.categoryImmigration')}</option>
+                <option value="EMPLOYMENT">{t('document.categoryEmployment')}</option>
+                <option value="MEDICAL">{t('document.categoryMedical')}</option>
+                <option value="SAFETY">{t('document.categorySafety')}</option>
               </select>
               {data?.pagination && (
                 <div className="ml-auto text-sm text-muted-foreground">
