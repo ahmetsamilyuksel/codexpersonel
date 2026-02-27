@@ -10,7 +10,7 @@ import { getCurrentUser, hashPassword } from '@/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/users error:', err)
-    return error('Failed to fetch users', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -79,30 +79,30 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const currentUser = await getCurrentUser(request)
-    if (!currentUser) return error('Unauthorized', 401)
+    if (!currentUser) return error('UNAUTHORIZED', 401)
 
     const isAdmin =
       currentUser.roles.some((r) => r.code === 'ADMIN' || r.code === 'SUPER_ADMIN') ||
       currentUser.permissions.includes('users.create')
 
     if (!isAdmin) {
-      return error('Insufficient permissions', 403)
+      return error('INSUFFICIENT_PERMISSIONS', 403)
     }
 
     const body = await request.json()
     const { email, password, firstName, lastName, roleIds } = body
 
     if (!email || !password || !firstName || !lastName) {
-      return error('Email, password, firstName, and lastName are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     if (password.length < 8) {
-      return error('Password must be at least 8 characters long', 400)
+      return error('PASSWORD_TOO_SHORT', 400)
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-      return error('Invalid email format', 400)
+      return error('INVALID_EMAIL_FORMAT', 400)
     }
 
     // Check if email already exists
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingUser) {
-      return error('A user with this email already exists', 409)
+      return error('DUPLICATE_EMAIL', 409)
     }
 
     // Validate role IDs if provided
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       const invalidRoleIds = roleIdsArray.filter((id: string) => !existingRoleIds.has(id))
 
       if (invalidRoleIds.length > 0) {
-        return error(`Invalid role IDs: ${invalidRoleIds.join(', ')}`, 400)
+        return error('INVALID_ROLE_IDS', 400)
       }
     }
 
@@ -197,6 +197,6 @@ export async function POST(request: NextRequest) {
     return success(newUser, 201)
   } catch (err) {
     console.error('POST /api/users error:', err)
-    return error('Failed to create user', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

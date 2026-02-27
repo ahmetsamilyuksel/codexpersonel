@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx'
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { reportType, filters = {}, locale = 'tr' } = body
@@ -248,11 +248,11 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        return error(`Unknown report type: ${reportType}`, 400)
+        return error('UNKNOWN_REPORT_TYPE', 400)
     }
 
     if (data.length === 0) {
-      return error('No data found for the specified filters', 404)
+      return error('NO_DATA_FOUND', 404)
     }
 
     // Generate Excel
@@ -292,6 +292,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     console.error('Report export error:', err)
-    return error('Failed to generate report', 500)
+    return error('EXPORT_FAILED', 500)
   }
 }

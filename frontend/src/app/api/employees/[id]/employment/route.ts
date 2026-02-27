@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const employment = await prisma.employeeEmployment.findUnique({
@@ -54,13 +54,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employment) {
-      return error('Employment record not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(employment)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/employment error:', err)
-    return error(err.message || 'Failed to fetch employment', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -79,7 +79,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Fetch existing for audit trail
@@ -138,6 +138,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(result)
   } catch (err: any) {
     console.error('PUT /api/employees/[id]/employment error:', err)
-    return error(err.message || 'Failed to upsert employment', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return success(contacts)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/contacts error:', err)
-    return error(err.message || 'Failed to fetch contacts', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -51,15 +51,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Validate required fields
     if (!body.contactType) {
-      return error('contactType is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
     if (!body.fullName) {
-      return error('fullName is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const contact = await prisma.employeeContact.create({
@@ -86,6 +86,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(contact, 201)
   } catch (err: any) {
     console.error('POST /api/employees/[id]/contacts error:', err)
-    return error(err.message || 'Failed to create contact', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

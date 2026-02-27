@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const workStatus = await prisma.employeeWorkStatus.findUnique({
@@ -29,13 +29,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!workStatus) {
-      return error('Work status record not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(workStatus)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/work-status error:', err)
-    return error(err.message || 'Failed to fetch work status', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Fetch existing for audit trail
@@ -83,6 +83,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(workStatus)
   } catch (err: any) {
     console.error('PUT /api/employees/[id]/work-status error:', err)
-    return error(err.message || 'Failed to upsert work status', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

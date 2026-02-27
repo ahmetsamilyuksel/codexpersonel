@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!refreshToken) {
-      return error('Refresh token is required', 400)
+      return error('REFRESH_TOKEN_REQUIRED', 400)
     }
 
     // ── Verify the refresh token JWT ────────────────────────────────
@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
     try {
       decoded = verifyRefreshToken(refreshToken) as { userId?: string; email?: string }
     } catch {
-      return error('Invalid or expired refresh token', 401)
+      return error('INVALID_REFRESH_TOKEN', 401)
     }
 
     if (!decoded.userId) {
-      return error('Invalid refresh token payload', 401)
+      return error('INVALID_REFRESH_TOKEN', 401)
     }
 
     // ── Look up the user ────────────────────────────────────────────
@@ -56,17 +56,17 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return error('User not found or inactive', 401)
+      return error('USER_NOT_FOUND', 401)
     }
 
     // ── Compare token against stored hash ───────────────────────────
     if (!user.refreshToken) {
-      return error('No active session. Please login again.', 401)
+      return error('NO_ACTIVE_SESSION', 401)
     }
 
     const isTokenValid = await comparePassword(refreshToken, user.refreshToken)
     if (!isTokenValid) {
-      return error('Refresh token has been revoked. Please login again.', 401)
+      return error('TOKEN_REVOKED', 401)
     }
 
     // ── Generate a new access token ─────────────────────────────────
@@ -78,6 +78,6 @@ export async function POST(request: NextRequest) {
     return success({ accessToken }, 200)
   } catch (err) {
     console.error('Refresh token error:', err)
-    return error('Internal server error', 500)
+    return error('INTERNAL_ERROR', 500)
   }
 }

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Optional year filter from query params
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return success(payments)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/patent-payments error:', err)
-    return error(err.message || 'Failed to fetch patent payments', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -63,25 +63,25 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Validate required fields
     if (body.year === undefined || body.year === null) {
-      return error('year is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
     if (body.month === undefined || body.month === null) {
-      return error('month is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
     if (body.amount === undefined || body.amount === null) {
-      return error('amount is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const year = parseInt(String(body.year), 10)
     const month = parseInt(String(body.month), 10)
 
     if (month < 1 || month > 12) {
-      return error('month must be between 1 and 12', 400)
+      return error('INVALID_MONTH', 400)
     }
 
     // Check if existing record exists for audit
@@ -131,6 +131,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(payment, existing ? 200 : 201)
   } catch (err: any) {
     console.error('POST /api/employees/[id]/patent-payments error:', err)
-    return error(err.message || 'Failed to upsert patent payment', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
