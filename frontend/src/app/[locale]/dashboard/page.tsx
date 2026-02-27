@@ -45,6 +45,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [seedLoading, setSeedLoading] = useState(false)
+  const [seedError, setSeedError] = useState<string | null>(null)
+  const [seedSuccess, setSeedSuccess] = useState<string | null>(null)
 
   useEffect(() => { loadStats() }, [])
 
@@ -52,15 +54,28 @@ export default function DashboardPage() {
     try {
       const { data } = await apiClient.get('/dashboard/stats')
       if (data.success) setStats(data.data)
-    } catch {} finally { setLoading(false) }
+    } catch (e) {
+      console.error('Dashboard stats error:', e)
+    } finally { setLoading(false) }
   }
 
   const handleSeedDemo = async () => {
     setSeedLoading(true)
+    setSeedError(null)
+    setSeedSuccess(null)
     try {
-      await apiClient.post('/seed-demo')
-      await loadStats()
-    } catch {} finally { setSeedLoading(false) }
+      const { data } = await apiClient.post('/seed-demo')
+      if (data.success) {
+        setSeedSuccess(`${data.data?.counts?.employees || 150} çalışan başarıyla oluşturuldu!`)
+        await loadStats()
+      } else {
+        setSeedError(data.error || 'Bilinmeyen hata')
+      }
+    } catch (e: any) {
+      const msg = e.response?.data?.error || e.message || 'Bağlantı hatası'
+      setSeedError(`Demo verisi yüklenemedi: ${msg}`)
+      console.error('Seed error:', e)
+    } finally { setSeedLoading(false) }
   }
 
   const fmtCurrency = (v: number) =>
@@ -105,13 +120,23 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground text-sm mt-1">SAELA {t('app.name')}</p>
           </div>
-          {totalEmps === 0 && (
-            <Button onClick={handleSeedDemo} loading={seedLoading} variant="default">
-              <Activity className="h-4 w-4 mr-2" />
-              Demo Veri Yükle (150 Çalışan)
-            </Button>
-          )}
+          <Button onClick={handleSeedDemo} loading={seedLoading} variant="default" disabled={seedLoading}>
+            <Activity className="h-4 w-4 mr-2" />
+            {seedLoading ? 'Yükleniyor...' : totalEmps === 0 ? 'Demo Veri Yükle (150 Çalışan)' : 'Demo Veriyi Yenile'}
+          </Button>
         </div>
+
+        {/* Seed feedback */}
+        {seedError && (
+          <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300 text-sm">
+            <strong>Hata:</strong> {seedError}
+          </div>
+        )}
+        {seedSuccess && (
+          <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4 text-green-700 dark:text-green-300 text-sm">
+            {seedSuccess}
+          </div>
+        )}
 
         {/* KPI Cards - 2 rows */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

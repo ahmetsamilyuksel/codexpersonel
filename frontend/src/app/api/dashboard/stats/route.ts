@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
       // Total active worksites
       prisma.worksite.count({ where: { status: 'ACTIVE', deletedAt: null } }),
 
-      // Employees by work status
-      prisma.employeeWorkStatus.groupBy({
-        by: ['workStatusType'],
-        _count: { workStatusType: true },
-        where: { employee: { status: 'ACTIVE', deletedAt: null } },
+      // Employees by status (ACTIVE, TERMINATED, ON_LEAVE, etc.)
+      prisma.employee.groupBy({
+        by: ['status'],
+        _count: { status: true },
+        where: { deletedAt: null },
       }),
 
       // Employees by nationality
@@ -130,8 +130,8 @@ export async function GET(request: NextRequest) {
       monthlyPayroll: 0, // TODO: calculate from latest payroll run
 
       byStatus: employeesByStatus.map((s) => ({
-        status: s.workStatusType,
-        count: s._count.workStatusType,
+        status: s.status,
+        count: s._count.status,
       })),
 
       byNationality: employeesByNationality.map((n) => {
