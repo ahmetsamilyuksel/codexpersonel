@@ -328,7 +328,9 @@ export function DocumentsTab({ employeeId, workStatusType }: DocumentsTabProps) 
                           </span>
 
                           {docType.hasExpiry && (
-                            <Clock className="h-3.5 w-3.5 text-muted-foreground" title={t('document.expiryDate')} />
+                            <span title={t('document.expiryDate')}>
+                              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            </span>
                           )}
 
                           {/* Status badges */}
