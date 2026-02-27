@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/hakkedis error:', err)
-    return error('Failed to fetch hakkedis', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -57,13 +57,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { worksiteId } = body
 
     if (!worksiteId) {
-      return error('worksiteId is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Verify worksite exists
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       where: { id: worksiteId },
     })
     if (!worksite) {
-      return error('Worksite not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const hakkedis = await prisma.hakkedis.create({
@@ -105,6 +105,6 @@ export async function POST(request: NextRequest) {
     return success(hakkedis, 201)
   } catch (err) {
     console.error('POST /api/hakkedis error:', err)
-    return error('Failed to create hakkedis', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

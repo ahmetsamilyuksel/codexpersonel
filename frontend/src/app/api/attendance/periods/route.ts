@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/attendance/periods error:', err)
-    return error('Failed to fetch attendance periods', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -55,13 +55,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { period, worksiteId } = body
 
     if (!period) {
-      return error('Period is required (e.g. 2025-01)', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Check if period already exists for this worksite
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existing) {
-      return error('An attendance period already exists for this worksite and month', 409)
+      return error('DUPLICATE_PERIOD', 409)
     }
 
     const attendancePeriod = await prisma.attendancePeriod.create({
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     return success(attendancePeriod, 201)
   } catch (err) {
     console.error('POST /api/attendance/periods error:', err)
-    return error('Failed to create attendance period', 500)
+    return error('CREATE_FAILED', 500)
   }
 }
 
@@ -116,13 +116,13 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { id, status } = body
 
     if (!id || !status) {
-      return error('Fields id and status are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.attendancePeriod.findUnique({
@@ -130,7 +130,7 @@ export async function PUT(request: NextRequest) {
     })
 
     if (!existing) {
-      return error('Attendance period not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Validate status transitions
@@ -143,7 +143,7 @@ export async function PUT(request: NextRequest) {
 
     const allowed = validTransitions[existing.status] || []
     if (!allowed.includes(status)) {
-      return error(`Cannot transition from ${existing.status} to ${status}`, 400)
+      return error('INVALID_STATUS_TRANSITION', 400)
     }
 
     const updateData: Record<string, unknown> = { status }
@@ -185,6 +185,6 @@ export async function PUT(request: NextRequest) {
     return success(period)
   } catch (err) {
     console.error('PUT /api/attendance/periods error:', err)
-    return error('Failed to update attendance period', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

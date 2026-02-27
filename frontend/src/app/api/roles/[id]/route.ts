@@ -42,13 +42,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!role) {
-      return error('Role not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(role)
   } catch (err) {
     console.error('GET /api/roles/[id] error:', err)
-    return error('Failed to fetch role', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -73,7 +73,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Role not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.code && body.code !== existing.code) {
@@ -81,7 +81,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         where: { code: body.code },
       })
       if (duplicate) {
-        return error('A role with this code already exists', 409)
+        return error('DUPLICATE_CODE', 409)
       }
     }
 
@@ -160,7 +160,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(role)
   } catch (err) {
     console.error('PUT /api/roles/[id] error:', err)
-    return error('Failed to update role', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -170,7 +170,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -184,15 +184,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Role not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (existing.isSystem) {
-      return error('System roles cannot be deleted', 400)
+      return error('SYSTEM_ROLE_PROTECTED', 400)
     }
 
     if (existing._count.userRoles > 0) {
-      return error('Cannot delete role that is assigned to users. Remove user assignments first.', 400)
+      return error('ROLE_IN_USE', 400)
     }
 
     // Delete role permissions and the role
@@ -212,6 +212,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Role deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/roles/[id] error:', err)
-    return error('Failed to delete role', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

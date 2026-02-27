@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     return success(roles)
   } catch (err) {
     console.error('GET /api/roles error:', err)
-    return error('Failed to fetch roles', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -34,20 +34,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { code, nameTr, nameRu, nameEn, permissionIds } = body
 
     if (!code || !nameTr || !nameRu || !nameEn) {
-      return error('Fields code, nameTr, nameRu, nameEn are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.role.findUnique({
       where: { code },
     })
     if (existing) {
-      return error('A role with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const role = await prisma.$transaction(async (tx: any) => {
@@ -113,6 +113,6 @@ export async function POST(request: NextRequest) {
     return success(role, 201)
   } catch (err) {
     console.error('POST /api/roles error:', err)
-    return error('Failed to create role', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

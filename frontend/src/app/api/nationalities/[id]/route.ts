@@ -15,13 +15,13 @@ export async function GET(
     })
 
     if (!item) {
-      return error('Nationality not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(item)
   } catch (err) {
     console.error('GET /api/nationalities/[id] error:', err)
-    return error('Failed to fetch nationality', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -38,7 +38,7 @@ export async function PUT(
     })
 
     if (!existing) {
-      return error('Nationality not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.code && body.code !== existing.code) {
@@ -46,7 +46,7 @@ export async function PUT(
         where: { code: body.code },
       })
       if (duplicate) {
-        return error('A nationality with this code already exists', 409)
+        return error('DUPLICATE_CODE', 409)
       }
     }
 
@@ -73,7 +73,7 @@ export async function PUT(
     return success(item)
   } catch (err) {
     console.error('PUT /api/nationalities/[id] error:', err)
-    return error('Failed to update nationality', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -89,7 +89,7 @@ export async function DELETE(
     })
 
     if (!existing) {
-      return error('Nationality not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const employeeCount = await prisma.employee.count({
@@ -126,6 +126,6 @@ export async function DELETE(
     return success({ message: 'Nationality deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/nationalities/[id] error:', err)
-    return error('Failed to delete nationality', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

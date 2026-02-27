@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return success(translations)
   } catch (err) {
     console.error('GET /api/translations error:', err)
-    return error('Failed to fetch translations', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -33,13 +33,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { key, namespace, tr, ru, en } = body
 
     if (!key || !tr || !ru || !en) {
-      return error('Fields key, tr, ru, en are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.translation.findUnique({
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existing) {
-      return error('A translation with this key and namespace already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const translation = await prisma.translation.create({
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     return success(translation, 201)
   } catch (err) {
     console.error('POST /api/translations error:', err)
-    return error('Failed to create translation', 500)
+    return error('CREATE_FAILED', 500)
   }
 }
 
@@ -81,12 +81,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
 
     if (!Array.isArray(body)) {
-      return error('Request body must be an array of translation objects', 400)
+      return error('INVALID_REQUEST', 400)
     }
 
     const results = await prisma.$transaction(async (tx: any) => {
@@ -126,6 +126,6 @@ export async function PUT(request: NextRequest) {
     return success(results)
   } catch (err) {
     console.error('PUT /api/translations error:', err)
-    return error('Failed to update translations', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

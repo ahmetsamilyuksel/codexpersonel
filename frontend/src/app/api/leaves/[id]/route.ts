@@ -39,13 +39,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!leaveRequest) {
-      return error('Leave request not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(leaveRequest)
   } catch (err) {
     console.error('GET /api/leaves/[id] error:', err)
-    return error('Failed to fetch leave request', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Leave request not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const updateData: Record<string, unknown> = {}
@@ -81,7 +81,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
       const allowed = validTransitions[existing.status] || []
       if (!allowed.includes(body.status)) {
-        return error(`Cannot transition from ${existing.status} to ${body.status}`, 400)
+        return error('INVALID_STATUS_TRANSITION', 400)
       }
 
       updateData.status = body.status
@@ -152,7 +152,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(leaveRequest)
   } catch (err) {
     console.error('PUT /api/leaves/[id] error:', err)
-    return error('Failed to update leave request', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -162,7 +162,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -171,11 +171,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Leave request not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (existing.status !== 'PENDING') {
-      return error('Only pending leave requests can be cancelled', 400)
+      return error('ONLY_PENDING_CANCELLABLE', 400)
     }
 
     // Restore balance
@@ -213,6 +213,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Leave request cancelled successfully' })
   } catch (err) {
     console.error('DELETE /api/leaves/[id] error:', err)
-    return error('Failed to cancel leave request', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

@@ -25,24 +25,24 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const documentId = formData.get('documentId') as string | null
     const employeeId = formData.get('employeeId') as string | null
 
-    if (!file) return error('No file provided', 400)
-    if (!documentId) return error('documentId is required', 400)
+    if (!file) return error('FILE_REQUIRED', 400)
+    if (!documentId) return error('FIELDS_REQUIRED', 400)
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return error(`File type not allowed: ${file.type}`, 400)
+      return error('FILE_TYPE_NOT_ALLOWED', 400)
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      return error(`File too large. Maximum: ${MAX_FILE_SIZE / 1024 / 1024}MB`, 400)
+      return error('FILE_TOO_LARGE', 400)
     }
 
     // Verify document exists
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         documentType: { select: { code: true } },
       },
     })
-    if (!document) return error('Document not found', 404)
+    if (!document) return error('NOT_FOUND', 404)
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const fileHash = crypto.createHash('md5').update(buffer).digest('hex')
@@ -127,6 +127,6 @@ export async function POST(request: NextRequest) {
     return success(documentFile, 201)
   } catch (err) {
     console.error('File upload error:', err)
-    return error('Failed to upload file', 500)
+    return error('UPLOAD_FAILED', 500)
   }
 }

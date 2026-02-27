@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     return success(data)
   } catch (err) {
     console.error('GET /api/payroll/rules error:', err)
-    return error('Failed to fetch payroll rules', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -48,24 +48,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { code, nameTr, nameRu, nameEn, category, rate, isPercentage, effectiveFrom, minBase, maxBase, notes } = body
 
     if (!code || !nameTr || !nameRu || !nameEn || !category) {
-      return error('Fields code, nameTr, nameRu, nameEn, category are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     if (rate === undefined || effectiveFrom === undefined) {
-      return error('Fields rate and effectiveFrom are required for the initial version', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.payrollRule.findUnique({
       where: { code },
     })
     if (existing) {
-      return error('A payroll rule with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const rule = await prisma.payrollRule.create({
@@ -110,6 +110,6 @@ export async function POST(request: NextRequest) {
     }, 201)
   } catch (err) {
     console.error('POST /api/payroll/rules error:', err)
-    return error('Failed to create payroll rule', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

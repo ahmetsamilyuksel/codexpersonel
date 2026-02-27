@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/attendance error:', err)
-    return error('Failed to fetch attendance records', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
 
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     const records = Array.isArray(body) ? body : [body]
 
     if (records.length === 0) {
-      return error('At least one attendance record is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const results = await prisma.$transaction(async (tx: any) => {
@@ -161,6 +161,6 @@ export async function POST(request: NextRequest) {
     return success(Array.isArray(body) ? results : results[0], 201)
   } catch (err) {
     console.error('POST /api/attendance error:', err)
-    return error('Failed to create attendance record', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

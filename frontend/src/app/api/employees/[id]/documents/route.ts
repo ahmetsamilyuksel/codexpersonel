@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const documents = await prisma.employeeDocument.findMany({
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return success(documents)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/documents error:', err)
-    return error(err.message || 'Failed to fetch documents', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -83,12 +83,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Validate required fields
     if (!body.documentTypeId) {
-      return error('documentTypeId is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Verify the document type exists
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!documentType) {
-      return error('Document type not found', 400)
+      return error('NOT_FOUND', 400)
     }
 
     // Extract files data if provided (for nested create)
@@ -171,6 +171,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(document, 201)
   } catch (err: any) {
     console.error('POST /api/employees/[id]/documents error:', err)
-    return error(err.message || 'Failed to create document', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

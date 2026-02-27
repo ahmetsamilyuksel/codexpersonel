@@ -24,11 +24,11 @@ export async function GET(
       },
     })
 
-    if (!worksite) return error('Worksite not found', 404)
+    if (!worksite) return error('NOT_FOUND', 404)
     return success(worksite)
   } catch (err) {
     console.error('Get worksite error:', err)
-    return error('Failed to fetch worksite', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -38,17 +38,17 @@ export async function PUT(
 ) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const existing = await prisma.worksite.findUnique({ where: { id } })
-    if (!existing) return error('Worksite not found', 404)
+    if (!existing) return error('NOT_FOUND', 404)
 
     const body = await request.json()
 
     if (body.code && body.code !== existing.code) {
       const dup = await prisma.worksite.findUnique({ where: { code: body.code } })
-      if (dup) return error('Worksite code already exists', 409)
+      if (dup) return error('DUPLICATE_CODE', 409)
     }
 
     const worksite = await prisma.worksite.update({
@@ -81,7 +81,7 @@ export async function PUT(
     return success(worksite)
   } catch (err) {
     console.error('Update worksite error:', err)
-    return error('Failed to update worksite', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -91,11 +91,11 @@ export async function DELETE(
 ) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const existing = await prisma.worksite.findUnique({ where: { id } })
-    if (!existing) return error('Worksite not found', 404)
+    if (!existing) return error('NOT_FOUND', 404)
 
     // Soft delete
     await prisma.worksite.update({
@@ -114,6 +114,6 @@ export async function DELETE(
     return success({ deleted: true })
   } catch (err) {
     console.error('Delete worksite error:', err)
-    return error('Failed to delete worksite', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

@@ -10,7 +10,7 @@ import { getCurrentUser } from '@/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category') || ''
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     return success(settings)
   } catch (err) {
     console.error('GET /api/settings error:', err)
-    return error('Failed to fetch settings', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -36,12 +36,12 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
 
     if (!Array.isArray(body)) {
-      return error('Request body must be an array of {key, value} pairs', 400)
+      return error('INVALID_REQUEST_BODY', 400)
     }
 
     const results = await prisma.$transaction(async (tx: any) => {
@@ -82,6 +82,6 @@ export async function PUT(request: NextRequest) {
     return success(results)
   } catch (err) {
     console.error('PUT /api/settings error:', err)
-    return error('Failed to update settings', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

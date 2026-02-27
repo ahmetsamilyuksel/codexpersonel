@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/departments error:', err)
-    return error('Failed to fetch departments', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -70,14 +70,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (!body.code || !body.nameTr || !body.nameRu || !body.nameEn) {
-      return error('Fields code, nameTr, nameRu, nameEn are required')
+      return error('FIELDS_REQUIRED')
     }
 
     const existing = await prisma.department.findUnique({
       where: { code: body.code },
     })
     if (existing) {
-      return error('A department with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     if (body.parentId) {
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
         where: { id: body.parentId },
       })
       if (!parent) {
-        return error('Parent department not found', 404)
+        return error('NOT_FOUND', 404)
       }
     }
 
@@ -114,6 +114,6 @@ export async function POST(request: NextRequest) {
     return success(item, 201)
   } catch (err) {
     console.error('POST /api/departments error:', err)
-    return error('Failed to create department', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

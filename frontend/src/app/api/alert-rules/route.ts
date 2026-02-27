@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     return success(rules)
   } catch (err) {
     console.error('GET /api/alert-rules error:', err)
-    return error('Failed to fetch alert rules', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -31,24 +31,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { code, nameTr, nameRu, nameEn, entity, dateField, warningDays, criticalDays } = body
 
     if (!code || !nameTr || !nameRu || !nameEn || !entity || !dateField) {
-      return error('Fields code, nameTr, nameRu, nameEn, entity, dateField are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     if (warningDays === undefined || criticalDays === undefined) {
-      return error('Fields warningDays and criticalDays are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.alertRule.findUnique({
       where: { code },
     })
     if (existing) {
-      return error('An alert rule with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const rule = await prisma.alertRule.create({
@@ -78,6 +78,6 @@ export async function POST(request: NextRequest) {
     return success(rule, 201)
   } catch (err) {
     console.error('POST /api/alert-rules error:', err)
-    return error('Failed to create alert rule', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

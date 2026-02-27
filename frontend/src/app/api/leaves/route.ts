@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/leaves error:', err)
-    return error('Failed to fetch leave requests', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -74,13 +74,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { employeeId, leaveTypeId, startDate, endDate, totalDays, reason } = body
 
     if (!employeeId || !leaveTypeId || !startDate || !endDate || !totalDays) {
-      return error('Fields employeeId, leaveTypeId, startDate, endDate, totalDays are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Verify employee exists
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       where: { id: employeeId, deletedAt: null },
     })
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Verify leave type exists
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       where: { id: leaveTypeId },
     })
     if (!leaveType) {
-      return error('Leave type not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Check for overlapping leave requests
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (overlapping) {
-      return error('Employee already has an overlapping leave request for this period', 409)
+      return error('OVERLAPPING_LEAVE', 409)
     }
 
     const startYear = new Date(startDate).getFullYear()
@@ -187,6 +187,6 @@ export async function POST(request: NextRequest) {
     return success(leaveRequest, 201)
   } catch (err) {
     console.error('POST /api/leaves error:', err)
-    return error('Failed to create leave request', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

@@ -26,6 +26,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     console.error('GET /api/permissions error:', err)
-    return error('Failed to fetch permissions', 500)
+    return error('FETCH_FAILED', 500)
   }
 }

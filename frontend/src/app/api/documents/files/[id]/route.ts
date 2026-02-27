@@ -14,7 +14,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     })
 
-    if (!file) return error('File not found', 404)
+    if (!file) return error('NOT_FOUND', 404)
 
     // For local storage, read file from disk
     const filePath = path.join(process.cwd(), file.storagePath)
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
   } catch (err: any) {
     console.error('GET /api/documents/files/[id] error:', err)
-    return error(err.message || 'Failed to fetch file', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -74,7 +74,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       where: { id, deletedAt: null },
     })
 
-    if (!file) return error('File not found', 404)
+    if (!file) return error('NOT_FOUND', 404)
 
     await prisma.documentFile.update({
       where: { id },
@@ -92,6 +92,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'File deleted' })
   } catch (err: any) {
     console.error('DELETE /api/documents/files/[id] error:', err)
-    return error(err.message || 'Failed to delete file', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

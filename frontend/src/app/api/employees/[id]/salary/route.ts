@@ -74,7 +74,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const salaryProfile = await prisma.employeeSalaryProfile.findUnique({
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!salaryProfile) {
-      return error('Salary profile not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Also fetch recent salary revisions
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
   } catch (err: any) {
     console.error('GET /api/employees/[id]/salary error:', err)
-    return error(err.message || 'Failed to fetch salary profile', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -123,7 +123,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Fetch existing salary profile for change tracking
@@ -236,6 +236,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
   } catch (err: any) {
     console.error('PUT /api/employees/[id]/salary error:', err)
-    return error(err.message || 'Failed to upsert salary profile', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

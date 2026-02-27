@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/alerts error:', err)
-    return error('Failed to fetch alerts', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const now = new Date()
     let createdCount = 0
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
     }, 201)
   } catch (err) {
     console.error('POST /api/alerts error:', err)
-    return error('Failed to generate alerts', 500)
+    return error('OPERATION_FAILED', 500)
   }
 }
 

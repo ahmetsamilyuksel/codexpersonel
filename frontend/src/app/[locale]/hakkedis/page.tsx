@@ -19,6 +19,10 @@ import {
   Search,
   X,
   Check,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
 } from 'lucide-react'
 
 interface HakkedisRow {
@@ -89,7 +93,14 @@ export default function HakkedisPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to create hakkedis')
+      const code = err.response?.data?.error || ''
+      const errorMap: Record<string, string> = {
+        'UNAUTHORIZED': t('common.unauthorized'),
+        'FIELDS_REQUIRED': t('common.fieldsRequired'),
+        'WORKSITE_NOT_FOUND': t('common.worksiteNotFound'),
+        'CREATE_FAILED': t('common.createFailed'),
+      }
+      setFormError(errorMap[code] || t('common.createFailed'))
     },
   })
 
@@ -120,7 +131,7 @@ export default function HakkedisPage() {
   const columns: Column<HakkedisRow>[] = [
     {
       key: 'period',
-      header: t('hakkedis.period') || 'Period',
+      header: t('hakkedis.period'),
       render: (item) => (
         <span className="font-mono text-sm font-medium">
           {item.period || '-'}
@@ -141,7 +152,7 @@ export default function HakkedisPage() {
     },
     {
       key: 'totalAmount',
-      header: t('hakkedis.totalAmount') || 'Total Amount',
+      header: t('hakkedis.totalAmount'),
       render: (item) => (
         <span className="font-medium">{formatCurrency(item.totalAmount)}</span>
       ),
@@ -153,14 +164,14 @@ export default function HakkedisPage() {
     },
     {
       key: 'itemCount',
-      header: t('hakkedis.itemCount') || 'Items',
+      header: t('hakkedis.itemCount'),
       render: (item) => (
         <Badge variant="secondary">{item._count.items}</Badge>
       ),
     },
     {
       key: 'notes',
-      header: t('common.notes') || 'Notes',
+      header: t('common.notes'),
       render: (item) => (
         <span className="text-sm text-muted-foreground truncate max-w-[200px] block">
           {item.notes || '-'}
@@ -169,7 +180,7 @@ export default function HakkedisPage() {
     },
     {
       key: 'createdAt',
-      header: t('common.createdAt') || 'Created',
+      header: t('common.createdAt'),
       render: (item) => new Date(item.createdAt).toLocaleDateString(),
     },
   ]
@@ -181,14 +192,70 @@ export default function HakkedisPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold">{t('hakkedis.title') || 'Hakkedis'}</h1>
+            <h1 className="text-2xl font-bold">{t('hakkedis.title')}</h1>
             <HelpTooltip helpKey="hakkedis" />
           </div>
           <Button onClick={() => setShowAdd(true)}>
             <Plus className="h-4 w-4 mr-1" />
-            {t('hakkedis.addNew') || 'New Hakkedis'}
+            {t('hakkedis.addNew')}
           </Button>
         </div>
+
+        {/* Stats Cards */}
+        {data?.data && data.data.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t('common.total')}</p>
+                    <p className="text-2xl font-bold">{data.pagination?.total || data.data.length}</p>
+                  </div>
+                  <FileText className="h-8 w-8 text-primary opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t('hakkedis.totalAmount')}</p>
+                    <p className="text-2xl font-bold">
+                      {formatCurrency(data.data.reduce((s: number, h: any) => s + (Number(h.totalAmount) || 0), 0))}
+                    </p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-success opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t('common.pending')}</p>
+                    <p className="text-2xl font-bold text-amber-500">
+                      {data.data.filter((h: any) => h.status === 'DRAFT' || h.status === 'SUBMITTED').length}
+                    </p>
+                  </div>
+                  <Clock className="h-8 w-8 text-amber-500 opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{t('hakkedis.approved')}</p>
+                    <p className="text-2xl font-bold text-success">
+                      {data.data.filter((h: any) => h.status === 'APPROVED').length}
+                    </p>
+                  </div>
+                  <CheckCircle className="h-8 w-8 text-success opacity-80" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Filters */}
         <Card>
@@ -207,7 +274,7 @@ export default function HakkedisPage() {
                 ))}
               </select>
               <Input
-                placeholder={t('hakkedis.period') || 'Period (YYYY-MM)'}
+                placeholder={`${t('hakkedis.period')} (YYYY-MM)`}
                 value={periodFilter}
                 onChange={(e) => { setPeriodFilter(e.target.value); setPage(1) }}
                 className="w-[160px]"
@@ -218,10 +285,10 @@ export default function HakkedisPage() {
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
               >
                 <option value="">{t('common.all')} {t('common.status')}</option>
-                <option value="DRAFT">{t('hakkedis.draft') || 'Draft'}</option>
-                <option value="SUBMITTED">{t('hakkedis.submitted') || 'Submitted'}</option>
-                <option value="APPROVED">{t('hakkedis.approved') || 'Approved'}</option>
-                <option value="REJECTED">{t('hakkedis.rejected') || 'Rejected'}</option>
+                <option value="DRAFT">{t('hakkedis.draft')}</option>
+                <option value="SUBMITTED">{t('hakkedis.submitted')}</option>
+                <option value="APPROVED">{t('hakkedis.approved')}</option>
+                <option value="REJECTED">{t('hakkedis.rejected')}</option>
               </select>
               {data?.pagination && (
                 <div className="ml-auto text-sm text-muted-foreground">
@@ -238,7 +305,7 @@ export default function HakkedisPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">
-                  {t('hakkedis.addNew') || 'New Hakkedis'}
+                  {t('hakkedis.addNew')}
                 </CardTitle>
                 <Button
                   variant="ghost"
@@ -276,7 +343,7 @@ export default function HakkedisPage() {
                   </select>
                 </div>
                 <Input
-                  label={t('hakkedis.period') || 'Period'}
+                  label={t('hakkedis.period')}
                   placeholder="YYYY-MM"
                   value={newHakkedis.period}
                   onChange={(e) =>
@@ -284,7 +351,7 @@ export default function HakkedisPage() {
                   }
                 />
                 <Input
-                  label={t('common.notes') || 'Notes'}
+                  label={t('common.notes')}
                   value={newHakkedis.notes}
                   onChange={(e) =>
                     setNewHakkedis((p) => ({ ...p, notes: e.target.value }))

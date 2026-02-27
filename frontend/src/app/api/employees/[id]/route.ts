@@ -179,13 +179,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(employee)
   } catch (err: any) {
     console.error(`GET /api/employees/${(await params).id} error:`, err)
-    return error(err.message || 'Failed to fetch employee', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -218,7 +218,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Build the update transaction
@@ -352,10 +352,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     console.error(`PUT /api/employees error:`, err)
 
     if (err.code === 'P2002') {
-      return error('A unique constraint violation occurred', 409)
+      return error('DUPLICATE_ENTRY', 409)
     }
 
-    return error(err.message || 'Failed to update employee', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -371,7 +371,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     await prisma.employee.update({
@@ -390,6 +390,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Employee deleted successfully' })
   } catch (err: any) {
     console.error(`DELETE /api/employees error:`, err)
-    return error(err.message || 'Failed to delete employee', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

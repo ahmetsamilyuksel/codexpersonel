@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const identity = await prisma.employeeIdentity.findUnique({
@@ -29,13 +29,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!identity) {
-      return error('Identity record not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(identity)
   } catch (err: any) {
     console.error('GET /api/employees/[id]/identity error:', err)
-    return error(err.message || 'Failed to fetch identity', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     // Fetch existing for audit trail
@@ -83,6 +83,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(identity)
   } catch (err: any) {
     console.error('PUT /api/employees/[id]/identity error:', err)
-    return error(err.message || 'Failed to upsert identity', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

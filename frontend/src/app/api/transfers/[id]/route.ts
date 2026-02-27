@@ -35,13 +35,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!transfer) {
-      return error('Transfer not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(transfer)
   } catch (err) {
     console.error('GET /api/transfers/[id] error:', err)
-    return error('Failed to fetch transfer', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -61,7 +61,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Transfer not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const updateData: Record<string, unknown> = {}
@@ -78,7 +78,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
       const allowed = validTransitions[existing.status] || []
       if (!allowed.includes(body.status)) {
-        return error(`Cannot transition from ${existing.status} to ${body.status}`, 400)
+        return error('INVALID_STATUS_TRANSITION', 400)
       }
 
       updateData.status = body.status
@@ -135,7 +135,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(transfer)
   } catch (err) {
     console.error('PUT /api/transfers/[id] error:', err)
-    return error('Failed to update transfer', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -144,7 +144,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -153,11 +153,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Transfer not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (existing.status === 'COMPLETED') {
-      return error('Cannot delete a completed transfer', 400)
+      return error('COMPLETED_NOT_DELETABLE', 400)
     }
 
     await prisma.employeeSiteTransfer.delete({ where: { id } })
@@ -173,6 +173,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Transfer deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/transfers/[id] error:', err)
-    return error('Failed to delete transfer', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

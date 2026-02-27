@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/nationalities error:', err)
-    return error('Failed to fetch nationalities', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -46,14 +46,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (!body.code || !body.nameTr || !body.nameRu || !body.nameEn) {
-      return error('Fields code, nameTr, nameRu, nameEn are required')
+      return error('FIELDS_REQUIRED')
     }
 
     const existing = await prisma.nationality.findUnique({
       where: { code: body.code },
     })
     if (existing) {
-      return error('A nationality with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const item = await prisma.nationality.create({
@@ -77,6 +77,6 @@ export async function POST(request: NextRequest) {
     return success(item, 201)
   } catch (err) {
     console.error('POST /api/nationalities error:', err)
-    return error('Failed to create nationality', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/assets error:', err)
-    return error('Failed to fetch assets', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -88,13 +88,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { categoryId, name } = body
 
     if (!categoryId || !name) {
-      return error('Fields categoryId and name are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Auto-generate asset number
@@ -147,6 +147,6 @@ export async function POST(request: NextRequest) {
     return success(asset, 201)
   } catch (err) {
     console.error('POST /api/assets error:', err)
-    return error('Failed to create asset', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

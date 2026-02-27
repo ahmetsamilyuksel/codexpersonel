@@ -42,13 +42,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!hakkedis) {
-      return error('Hakkedis not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(hakkedis)
   } catch (err) {
     console.error('GET /api/hakkedis/[id] error:', err)
-    return error('Failed to fetch hakkedis', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -68,7 +68,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Hakkedis not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const updateData: Record<string, unknown> = {}
@@ -116,7 +116,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(hakkedis)
   } catch (err) {
     console.error('PUT /api/hakkedis/[id] error:', err)
-    return error('Failed to update hakkedis', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -126,13 +126,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
 
     if (body.action !== 'addItem') {
-      return error('Invalid action. Supported: addItem', 400)
+      return error('INVALID_ACTION', 400)
     }
 
     const hakkedis = await prisma.hakkedis.findUnique({
@@ -140,13 +140,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!hakkedis) {
-      return error('Hakkedis not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const { workItem, unit, quantity, unitPrice, date } = body
 
     if (!workItem || !unit || quantity === undefined || unitPrice === undefined || !date) {
-      return error('Fields workItem, unit, quantity, unitPrice, date are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const totalAmount = Number(quantity) * Number(unitPrice)
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(item, 201)
   } catch (err) {
     console.error('POST /api/hakkedis/[id] error:', err)
-    return error('Failed to add hakkedis item', 500)
+    return error('CREATE_FAILED', 500)
   }
 }
 
@@ -217,7 +217,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -229,11 +229,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Hakkedis not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (existing.status !== 'DRAFT') {
-      return error('Only draft hakkedis can be deleted', 400)
+      return error('ONLY_DRAFT_DELETABLE', 400)
     }
 
     // Cascade delete items (handled by Prisma onDelete: Cascade) and then hakkedis
@@ -250,6 +250,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Hakkedis deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/hakkedis/[id] error:', err)
-    return error('Failed to delete hakkedis', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

@@ -15,13 +15,13 @@ export async function GET(
     })
 
     if (!item) {
-      return error('Deduction category not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(item)
   } catch (err) {
     console.error('GET /api/deduction-categories/[id] error:', err)
-    return error('Failed to fetch deduction category', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -38,7 +38,7 @@ export async function PUT(
     })
 
     if (!existing) {
-      return error('Deduction category not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.code && body.code !== existing.code) {
@@ -46,7 +46,7 @@ export async function PUT(
         where: { code: body.code },
       })
       if (duplicate) {
-        return error('A deduction category with this code already exists', 409)
+        return error('DUPLICATE_CODE', 409)
       }
     }
 
@@ -73,7 +73,7 @@ export async function PUT(
     return success(item)
   } catch (err) {
     console.error('PUT /api/deduction-categories/[id] error:', err)
-    return error('Failed to update deduction category', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -89,7 +89,7 @@ export async function DELETE(
     })
 
     if (!existing) {
-      return error('Deduction category not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const deductionCount = await prisma.deduction.count({
@@ -125,6 +125,6 @@ export async function DELETE(
     return success({ message: 'Deduction category deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/deduction-categories/[id] error:', err)
-    return error('Failed to delete deduction category', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

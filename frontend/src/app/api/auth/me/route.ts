@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const user = await getCurrentUser(request)
 
     if (!user) {
-      return error('Authentication required', 401)
+      return error('UNAUTHORIZED', 401)
     }
 
     // ── Return full user profile ────────────────────────────────────
@@ -24,6 +24,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (err) {
     console.error('Get current user error:', err)
-    return error('Internal server error', 500)
+    return error('INTERNAL_ERROR', 500)
   }
 }

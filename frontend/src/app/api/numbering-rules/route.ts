@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     return success(rules)
   } catch (err) {
     console.error('GET /api/numbering-rules error:', err)
-    return error('Failed to fetch numbering rules', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { entity, prefix, padLength } = body
 
     if (!entity) {
-      return error('Entity is required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.numberingRule.findUnique({
@@ -40,7 +40,7 @@ export async function PUT(request: NextRequest) {
     })
 
     if (!existing) {
-      return error('Numbering rule not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const rule = await prisma.numberingRule.update({
@@ -63,6 +63,6 @@ export async function PUT(request: NextRequest) {
     return success(rule)
   } catch (err) {
     console.error('PUT /api/numbering-rules error:', err)
-    return error('Failed to update numbering rule', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
