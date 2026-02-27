@@ -143,7 +143,7 @@ export default function LeavesPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to create leave request')
+      setFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -278,7 +278,7 @@ export default function LeavesPage() {
       header: t('leave.leaveType'),
       render: (item) => getLocalizedName(item.leaveType, currentLocale),
     },
-    { key: 'year', header: 'Year' },
+    { key: 'year', header: t('common.year') },
     {
       key: 'entitled',
       header: t('leave.entitled'),
@@ -345,7 +345,7 @@ export default function LeavesPage() {
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
               >
-                <option value="">{t('common.all')} Status</option>
+                <option value="">{t('common.all')} {t('common.status')}</option>
                 <option value="PENDING">{t('common.pending')}</option>
                 <option value="APPROVED">{t('common.approved')}</option>
                 <option value="REJECTED">{t('common.rejected')}</option>
@@ -355,7 +355,7 @@ export default function LeavesPage() {
                 value={typeFilter}
                 onChange={(e) => { setTypeFilter(e.target.value); setPage(1) }}
               >
-                <option value="">{t('common.all')} Types</option>
+                <option value="">{t('common.all')} {t('common.type')}</option>
                 {leaveTypes.map((lt: any) => (
                   <option key={lt.id} value={lt.id}>
                     {getLocalizedName(lt, currentLocale)}

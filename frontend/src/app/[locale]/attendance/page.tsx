@@ -317,7 +317,7 @@ export default function AttendancePage() {
                         : 'warning'
                     }
                   >
-                    {periodStatus}
+                    {t(`common.${periodStatus.toLowerCase()}`)}
                   </Badge>
                 </div>
               )}
@@ -347,7 +347,7 @@ export default function AttendancePage() {
                 {isLocked && (
                   <Badge variant="secondary">
                     <Lock className="h-3 w-3 mr-1" />
-                    Locked
+                    {t('common.locked')}
                   </Badge>
                 )}
               </div>
@@ -359,7 +359,7 @@ export default function AttendancePage() {
         <div className="flex flex-wrap gap-2">
           {ATTENDANCE_TYPES.map((type) => (
             <span key={type.value} className={`px-2 py-0.5 rounded text-xs font-medium ${type.color}`}>
-              {type.label} = {type.value.replace('_', ' ')}
+              {type.label} = {t(`attendance.${type.value === 'NORMAL' ? 'normal' : type.value === 'OVERTIME' ? 'overtime' : type.value === 'NIGHT_SHIFT' ? 'nightShift' : type.value === 'HOLIDAY' ? 'holiday' : type.value === 'HALF_DAY' ? 'halfDay' : type.value === 'ABSENT' ? 'absent' : type.value === 'ON_LEAVE' ? 'onLeave' : 'restDay'}`)}
             </span>
           ))}
         </div>
@@ -399,7 +399,7 @@ export default function AttendancePage() {
                         )
                       })}
                       <th className="p-2 text-center font-medium border-b min-w-[60px]">
-                        Total
+                        {t('common.total')}
                       </th>
                     </tr>
                   </thead>
@@ -487,7 +487,7 @@ export default function AttendancePage() {
           <Card>
             <CardContent className="pt-4">
               <p className="text-center text-muted-foreground py-8">
-                Select a worksite to view attendance
+                {t('common.selectWorksite')}
               </p>
             </CardContent>
           </Card>

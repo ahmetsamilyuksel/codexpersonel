@@ -82,7 +82,29 @@
     "bulkActions": "Bulk Actions",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
-    "language": "Language"
+    "language": "Language",
+    "suspended": "Suspended",
+    "terminated": "Terminated",
+    "onLeave": "On Leave",
+    "cancelled": "Cancelled",
+    "locked": "Locked",
+    "submitted": "Submitted",
+    "calculated": "Calculated",
+    "paid": "Paid",
+    "year": "Year",
+    "severity": "Severity",
+    "unread": "Unread",
+    "readStatus": "Read",
+    "purchasePrice": "Purchase Price",
+    "depositAmount": "Deposit",
+    "assignee": "Assignee",
+    "generateAlerts": "Generate Alerts",
+    "selectWorksite": "Select a worksite to view",
+    "selectWorksitePayroll": "Select a worksite and period to manage payroll",
+    "createPayrollToBegin": "Create a payroll run to begin",
+    "codeAndNameRequired": "Code and Name are required",
+    "createFailed": "Failed to create",
+    "disposed": "Disposed"
   },
   "auth": {
     "login": "Login",
@@ -329,7 +351,8 @@
     "returned": "Returned",
     "damaged": "Damaged",
     "lost": "Lost",
-    "available": "Available"
+    "available": "Available",
+    "disposed": "Disposed"
   },
   "leave": {
     "title": "Leaves",
@@ -452,6 +475,26 @@
     "team": "Team",
     "distributionPercent": "Distribution Percent",
     "distributionAmount": "Distribution Amount"
+  },
+  "user": {
+    "title": "Users",
+    "management": "Users & Roles",
+    "addNew": "New User",
+    "email": "Email",
+    "password": "Password",
+    "roles": "Roles",
+    "lastLogin": "Last Login",
+    "suspended": "Suspended"
+  },
+  "role": {
+    "title": "Roles",
+    "addNew": "New Role",
+    "code": "Role Code",
+    "permissions": "Permissions",
+    "type": "Type",
+    "system": "System",
+    "siteScoped": "Site Scoped",
+    "custom": "Custom"
   },
   "help": {
     "employeeNo": "System auto-generates unique employee numbers. Format can be changed from Settings > Numbering Rules.",
