@@ -17,7 +17,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         employeeNo: true,
         firstName: true,
         lastName: true,
-        employment: { select: { startDate: true } },
       },
     })
 
