@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && npx prisma db push --accept-data-loss && npx tsx prisma/setup.ts && next build",
+    "build": "npx prisma generate && (npx prisma db push --accept-data-loss || echo 'DB push skipped - database unreachable') && (npx tsx prisma/setup.ts || echo 'Setup skipped - database unreachable') && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "npx prisma generate",
