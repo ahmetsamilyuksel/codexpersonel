@@ -394,8 +394,8 @@ export default function PayrollPage() {
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={60} />
                   <YAxis tick={{ fontSize: 10 }} />
                   <Tooltip
-                    formatter={(value: number) =>
-                      new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(value)
+                    formatter={(value) =>
+                      new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(Number(value) || 0)
                     }
                   />
                   <Legend />
