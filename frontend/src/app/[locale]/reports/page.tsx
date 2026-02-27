@@ -86,21 +86,6 @@ const REPORT_TYPES: ReportDefinition[] = [
   },
 ]
 
-const DEFAULT_DESCRIPTIONS: Record<string, string> = {
-  EMPLOYEE_LIST:
-    'Export a complete list of employees with their details, filtered by status or worksite.',
-  ATTENDANCE_SUMMARY:
-    'Generate attendance records summary with check-in/out times, overtime, and night hours.',
-  PAYROLL_SUMMARY:
-    'Export payroll run details including gross, net, taxes, earnings, and deductions per employee.',
-  EXPIRING_DOCUMENTS:
-    'List employee documents (passport, visa, permits) that are expiring within a specified timeframe.',
-  ASSET_SUMMARY:
-    'Export asset inventory with categories, status, current assignments, and worksite locations.',
-  TRANSFER_HISTORY:
-    'Generate transfer history report showing employee site transfers with dates and statuses.',
-}
-
 export default function ReportsPage() {
   const { t, locale } = useTranslations()
   const { locale: currentLocale } = useLocaleStore()
@@ -201,8 +186,8 @@ export default function ReportsPage() {
     } catch (err: any) {
       const errorMessage =
         err.response?.status === 404
-          ? t('report.noData') || 'No data found for the specified filters'
-          : t('report.exportError') || 'Failed to generate report'
+          ? t('report.noData')
+          : t('report.exportError')
       setExportError(errorMessage)
     } finally {
       setGenerating(false)
@@ -219,7 +204,7 @@ export default function ReportsPage() {
             <div className="flex items-center gap-2">
               <selectedReport.icon className={`h-5 w-5 ${selectedReport.color}`} />
               <CardTitle className="text-base">
-                {t(selectedReport.labelKey) || selectedReport.key.replace(/_/g, ' ')}
+                {t(selectedReport.labelKey)}
               </CardTitle>
             </div>
             <Button
@@ -276,11 +261,11 @@ export default function ReportsPage() {
                   <option value="">{t('common.all')}</option>
                   {selectedReport.key === 'ASSET_SUMMARY' ? (
                     <>
-                      <option value="AVAILABLE">{t('asset.available') || 'Available'}</option>
-                      <option value="ASSIGNED">{t('asset.assigned') || 'Assigned'}</option>
-                      <option value="DAMAGED">{t('asset.damaged') || 'Damaged'}</option>
-                      <option value="LOST">{t('asset.lost') || 'Lost'}</option>
-                      <option value="DISPOSED">{t('asset.disposed') || 'Disposed'}</option>
+                      <option value="AVAILABLE">{t('asset.available')}</option>
+                      <option value="ASSIGNED">{t('asset.assigned')}</option>
+                      <option value="DAMAGED">{t('asset.damaged')}</option>
+                      <option value="LOST">{t('asset.lost')}</option>
+                      <option value="DISPOSED">{t('asset.disposed')}</option>
                     </>
                   ) : (
                     <>
@@ -295,7 +280,7 @@ export default function ReportsPage() {
 
             {selectedReport.filters.includes('startDate') && (
               <Input
-                label={t('common.startDate') || 'Start Date'}
+                label={t('common.startDate')}
                 type="date"
                 value={filters.startDate || ''}
                 onChange={(e) => updateFilter('startDate', e.target.value)}
@@ -304,7 +289,7 @@ export default function ReportsPage() {
 
             {selectedReport.filters.includes('endDate') && (
               <Input
-                label={t('common.endDate') || 'End Date'}
+                label={t('common.endDate')}
                 type="date"
                 value={filters.endDate || ''}
                 onChange={(e) => updateFilter('endDate', e.target.value)}
@@ -313,7 +298,7 @@ export default function ReportsPage() {
 
             {selectedReport.filters.includes('daysAhead') && (
               <Input
-                label={t('report.daysAhead') || 'Days Ahead'}
+                label={t('report.daysAhead')}
                 type="number"
                 value={filters.daysAhead || '30'}
                 onChange={(e) => updateFilter('daysAhead', e.target.value)}
@@ -343,14 +328,14 @@ export default function ReportsPage() {
             {selectedReport.filters.includes('payrollRunId') && (
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t('payroll.title') || 'Payroll Run'}
+                  {t('payroll.title')}
                 </label>
                 <select
                   className="h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
                   value={filters.payrollRunId || ''}
                   onChange={(e) => updateFilter('payrollRunId', e.target.value)}
                 >
-                  <option value="">-- {t('common.select') || 'Select'} --</option>
+                  <option value="">--</option>
                   {payrollRuns.map((pr: any) => (
                     <option key={pr.id} value={pr.id}>
                       {pr.period} - {pr.status}
@@ -362,8 +347,8 @@ export default function ReportsPage() {
 
             {selectedReport.filters.includes('employeeId') && (
               <Input
-                label={t('employee.title') || 'Employee ID'}
-                placeholder={t('employee.title') || 'Employee ID...'}
+                label={t('employee.title')}
+                placeholder={t('employee.title')}
                 value={filters.employeeId || ''}
                 onChange={(e) => updateFilter('employeeId', e.target.value)}
               />
@@ -377,8 +362,8 @@ export default function ReportsPage() {
               <FileSpreadsheet className="h-4 w-4 mr-1" />
             )}
             {generating
-              ? t('report.generating') || 'Generating...'
-              : t('report.exportExcel') || 'Export to Excel'}
+              ? t('report.generating')
+              : t('report.exportExcel')}
           </Button>
         </CardContent>
       </Card>
@@ -391,7 +376,7 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-center gap-2">
           <BarChart3 className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">{t('report.title') || 'Reports'}</h1>
+          <h1 className="text-2xl font-bold">{t('report.title')}</h1>
           <HelpTooltip helpKey="report" />
         </div>
 
@@ -415,10 +400,10 @@ export default function ReportsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-base mb-1">
-                      {t(report.labelKey) || report.key.replace(/_/g, ' ')}
+                      {t(report.labelKey)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {t(report.descKey) || DEFAULT_DESCRIPTIONS[report.key] || ''}
+                      {t(report.descKey)}
                     </p>
                   </div>
                   <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 mt-1" />

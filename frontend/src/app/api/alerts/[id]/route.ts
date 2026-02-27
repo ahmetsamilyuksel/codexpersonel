@@ -14,7 +14,7 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Alert not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const updateData: Record<string, unknown> = {}
@@ -81,6 +81,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(alert)
   } catch (err) {
     console.error('PUT /api/alerts/[id] error:', err)
-    return error('Failed to update alert', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }

@@ -10,7 +10,7 @@ import { getCurrentUser } from '@/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
@@ -59,6 +59,6 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/audit-logs error:', err)
-    return error('Failed to fetch audit logs', 500)
+    return error('FETCH_FAILED', 500)
   }
 }

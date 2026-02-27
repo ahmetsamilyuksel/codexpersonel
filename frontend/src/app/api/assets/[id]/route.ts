@@ -50,13 +50,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!asset) {
-      return error('Asset not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(asset)
   } catch (err) {
     console.error('GET /api/assets/[id] error:', err)
-    return error('Failed to fetch asset', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Asset not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const asset = await prisma.asset.update({
@@ -128,7 +128,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(asset)
   } catch (err) {
     console.error('PUT /api/assets/[id] error:', err)
-    return error('Failed to update asset', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -138,7 +138,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -147,7 +147,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Asset not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     await prisma.asset.update({
@@ -166,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Asset deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/assets/[id] error:', err)
-    return error('Failed to delete asset', 500)
+    return error('DELETE_FAILED', 500)
   }
 }
 
@@ -177,7 +177,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -187,17 +187,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!asset) {
-      return error('Asset not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.action === 'assign') {
       if (!body.employeeId) {
-        return error('employeeId is required for assignment', 400)
+        return error('EMPLOYEE_ID_REQUIRED', 400)
       }
 
       // Check if asset is available
       if (asset.status !== 'AVAILABLE') {
-        return error('Asset is not available for assignment', 400)
+        return error('ASSET_NOT_AVAILABLE', 400)
       }
 
       // Check employee exists
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         where: { id: body.employeeId, deletedAt: null },
       })
       if (!employee) {
-        return error('Employee not found', 404)
+        return error('NOT_FOUND', 404)
       }
 
       const [assignment] = await prisma.$transaction([
@@ -259,7 +259,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       })
 
       if (!activeAssignment) {
-        return error('No active assignment found for this asset', 400)
+        return error('NO_ACTIVE_ASSIGNMENT', 400)
       }
 
       const [assignment] = await prisma.$transaction([
@@ -302,9 +302,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return success(assignment)
     }
 
-    return error('Invalid action. Supported: assign, return', 400)
+    return error('INVALID_ACTION', 400)
   } catch (err) {
     console.error('POST /api/assets/[id] error:', err)
-    return error('Failed to process asset action', 500)
+    return error('ACTION_FAILED', 500)
   }
 }

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return success(files)
   } catch (err: any) {
-    return error(err.message || 'Failed to fetch files', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -31,14 +31,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id: documentId } = await params
 
     const formData = await request.formData()
     const file = formData.get('file') as File | null
 
-    if (!file) return error('No file provided', 400)
+    if (!file) return error('FILE_REQUIRED', 400)
 
     // Validate file type
     const ALLOWED_MIME_TYPES = [
@@ -47,12 +47,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ]
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return error(`File type not allowed: ${file.type}`, 400)
+      return error('FILE_TYPE_NOT_ALLOWED', 400)
     }
 
     const MAX_FILE_SIZE = 20 * 1024 * 1024
     if (file.size > MAX_FILE_SIZE) {
-      return error('File too large. Maximum: 20MB', 400)
+      return error('FILE_TOO_LARGE', 400)
     }
 
     // Verify document exists
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         documentType: { select: { code: true } },
       },
     })
-    if (!document) return error('Document not found', 404)
+    if (!document) return error('NOT_FOUND', 404)
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const fileHash = crypto.createHash('md5').update(buffer).digest('hex')
@@ -122,6 +122,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(documentFile, 201)
   } catch (err: any) {
     console.error('File upload error:', err)
-    return error(err.message || 'Failed to upload file', 500)
+    return error('UPLOAD_FAILED', 500)
   }
 }

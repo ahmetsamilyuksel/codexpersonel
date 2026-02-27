@@ -49,13 +49,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!payrollRun) {
-      return error('Payroll run not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(payrollRun)
   } catch (err) {
     console.error('GET /api/payroll/[id] error:', err)
-    return error('Failed to fetch payroll run', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -75,7 +75,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Payroll run not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const updateData: Record<string, unknown> = {}
@@ -92,7 +92,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
       const allowed = validTransitions[existing.status] || []
       if (!allowed.includes(body.status)) {
-        return error(`Cannot transition from ${existing.status} to ${body.status}`, 400)
+        return error('INVALID_STATUS_TRANSITION', 400)
       }
 
       updateData.status = body.status
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(payrollRun)
   } catch (err) {
     console.error('PUT /api/payroll/[id] error:', err)
-    return error('Failed to update payroll run', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -146,13 +146,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
 
     if (body.action !== 'calculate') {
-      return error('Invalid action. Supported: calculate', 400)
+      return error('INVALID_ACTION', 400)
     }
 
     const payrollRun = await prisma.payrollRun.findUnique({
@@ -163,11 +163,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!payrollRun) {
-      return error('Payroll run not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (payrollRun.status !== 'DRAFT' && payrollRun.status !== 'CALCULATED') {
-      return error('Payroll can only be calculated in DRAFT or CALCULATED status', 400)
+      return error('INVALID_STATUS_FOR_CALCULATION', 400)
     }
 
     // Get active payroll rule versions for the period
@@ -438,6 +438,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     return success(updatedRun)
   } catch (err) {
     console.error('POST /api/payroll/[id] error:', err)
-    return error('Failed to calculate payroll', 500)
+    return error('CALCULATE_FAILED', 500)
   }
 }

@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
 interface PayrollItemRow {
   id: string
@@ -373,6 +374,38 @@ export default function PayrollPage() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Payroll Chart */}
+        {payrollRun && items.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t('payroll.grossAmount')} / {t('payroll.netAmount')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={items.slice(0, 20).map((item) => ({
+                  name: `${item.employee.firstName} ${item.employee.lastName?.charAt(0)}.`,
+                  gross: Number(item.grossAmount) || 0,
+                  net: Number(item.netAmount) || 0,
+                  ndfl: Number(item.ndflAmount) || 0,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={60} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip
+                    formatter={(value: number) =>
+                      new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(value)
+                    }
+                  />
+                  <Legend />
+                  <Bar dataKey="gross" name={t('payroll.grossAmount')} fill="#3b82f6" />
+                  <Bar dataKey="net" name={t('payroll.netAmount')} fill="#10b981" />
+                  <Bar dataKey="ndfl" name={t('payroll.ndflAmount')} fill="#ef4444" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         )}
 
         {/* Payroll Items Table */}

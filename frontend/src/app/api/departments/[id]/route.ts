@@ -22,13 +22,13 @@ export async function GET(
     })
 
     if (!item) {
-      return error('Department not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(item)
   } catch (err) {
     console.error('GET /api/departments/[id] error:', err)
-    return error('Failed to fetch department', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -45,7 +45,7 @@ export async function PUT(
     })
 
     if (!existing) {
-      return error('Department not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.code && body.code !== existing.code) {
@@ -53,26 +53,26 @@ export async function PUT(
         where: { code: body.code },
       })
       if (duplicate) {
-        return error('A department with this code already exists', 409)
+        return error('DUPLICATE_CODE', 409)
       }
     }
 
     // Prevent circular parent references
     if (body.parentId) {
       if (body.parentId === id) {
-        return error('A department cannot be its own parent', 400)
+        return error('SELF_PARENT', 400)
       }
       const parent = await prisma.department.findUnique({
         where: { id: body.parentId },
       })
       if (!parent) {
-        return error('Parent department not found', 404)
+        return error('PARENT_NOT_FOUND', 404)
       }
       // Check if the proposed parent is a descendant of this department
       let currentParent = parent
       while (currentParent.parentId) {
         if (currentParent.parentId === id) {
-          return error('Cannot set a descendant as parent (circular reference)', 400)
+          return error('CIRCULAR_REFERENCE', 400)
         }
         const nextParent = await prisma.department.findUnique({
           where: { id: currentParent.parentId },
@@ -109,7 +109,7 @@ export async function PUT(
     return success(item)
   } catch (err) {
     console.error('PUT /api/departments/[id] error:', err)
-    return error('Failed to update department', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -128,11 +128,11 @@ export async function DELETE(
     })
 
     if (!existing) {
-      return error('Department not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (existing.children.length > 0) {
-      return error('Cannot delete department with child departments. Remove or reassign children first.', 400)
+      return error('HAS_CHILDREN', 400)
     }
 
     const employeeCount = await prisma.employee.count({
@@ -168,6 +168,6 @@ export async function DELETE(
     return success({ message: 'Department deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/departments/[id] error:', err)
-    return error('Failed to delete department', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

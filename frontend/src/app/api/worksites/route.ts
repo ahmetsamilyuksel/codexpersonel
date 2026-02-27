@@ -44,24 +44,24 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('Worksites list error:', err)
-    return error('Failed to fetch worksites', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { code, name } = body
 
     if (!code || !name) {
-      return error('Code and name are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     const existing = await prisma.worksite.findUnique({ where: { code } })
-    if (existing) return error('Worksite code already exists', 409)
+    if (existing) return error('ALREADY_EXISTS', 409)
 
     const worksite = await prisma.worksite.create({
       data: {
@@ -91,6 +91,6 @@ export async function POST(request: NextRequest) {
     return success(worksite, 201)
   } catch (err) {
     console.error('Create worksite error:', err)
-    return error('Failed to create worksite', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

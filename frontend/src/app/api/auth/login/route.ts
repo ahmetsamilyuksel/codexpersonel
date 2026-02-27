@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // ── Validate input ──────────────────────────────────────────────
     if (!email || !password) {
-      return error('Email and password are required', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // ── Find user ───────────────────────────────────────────────────
@@ -56,23 +56,23 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      return error('Invalid email or password', 401)
+      return error('INVALID_CREDENTIALS', 401)
     }
 
     // ── Check soft-delete ───────────────────────────────────────────
     if (user.deletedAt) {
-      return error('This account has been deleted', 401)
+      return error('ACCOUNT_DELETED', 401)
     }
 
     // ── Check user status ───────────────────────────────────────────
     if (user.status !== 'ACTIVE') {
-      return error('Account is inactive. Please contact an administrator.', 403)
+      return error('ACCOUNT_INACTIVE', 403)
     }
 
     // ── Verify password ─────────────────────────────────────────────
     const isPasswordValid = await comparePassword(password, user.password)
     if (!isPasswordValid) {
-      return error('Invalid email or password', 401)
+      return error('INVALID_CREDENTIALS', 401)
     }
 
     // ── Build role / permission payload ─────────────────────────────
@@ -164,6 +164,6 @@ export async function POST(request: NextRequest) {
     return response
   } catch (err) {
     console.error('Login error:', err)
-    return error('Internal server error', 500)
+    return error('INTERNAL_ERROR', 500)
   }
 }

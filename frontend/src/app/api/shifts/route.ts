@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/shifts error:', err)
-    return error('Failed to fetch shifts', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -46,18 +46,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     if (!body.code || !body.nameTr || !body.nameRu || !body.nameEn) {
-      return error('Fields code, nameTr, nameRu, nameEn are required')
+      return error('FIELDS_REQUIRED')
     }
 
     if (!body.startTime || !body.endTime) {
-      return error('Fields startTime and endTime are required')
+      return error('FIELDS_REQUIRED')
     }
 
     const existing = await prisma.shift.findUnique({
       where: { code: body.code },
     })
     if (existing) {
-      return error('A shift with this code already exists', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const item = await prisma.shift.create({
@@ -84,6 +84,6 @@ export async function POST(request: NextRequest) {
     return success(item, 201)
   } catch (err) {
     console.error('POST /api/shifts error:', err)
-    return error('Failed to create shift', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

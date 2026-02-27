@@ -241,6 +241,7 @@
     "residencePermitEnd": "Residence Permit End"
   },
   "employment": {
+    "title": "Employment",
     "worksite": "Worksite",
     "team": "Team",
     "supervisor": "Supervisor",
@@ -252,13 +253,22 @@
     "pieceRate": "Piece Rate",
     "contractType": "Contract Type",
     "contractDate": "Contract Date",
+    "contractNo": "Contract No",
     "hireDate": "Hire Date",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "position": "Position",
+    "employeeType": "Employee Type",
     "actualStartDate": "Actual Start Date",
     "probationStart": "Probation Start",
     "probationEnd": "Probation End",
     "terminationDate": "Termination Date",
     "terminationReason": "Termination Reason",
-    "rehire": "Rehire"
+    "rehire": "Rehire",
+    "indefinite": "Indefinite",
+    "fixedTerm": "Fixed Term",
+    "civil": "Civil",
+    "subcontract": "Subcontract"
   },
   "salary": {
     "title": "Salary",
@@ -490,12 +500,24 @@
     "hireTermination": "Hire / Termination",
     "probationEnding": "Probation Ending",
     "generate": "Generate",
+    "generating": "Generating...",
     "exportExcel": "Export to Excel",
     "exportCsv": "Export to CSV",
-    "exportPdf": "Export to PDF"
+    "exportPdf": "Export to PDF",
+    "employeeListDesc": "Export a complete list of employees, filtered by status or worksite.",
+    "attendanceSummaryDesc": "Generate attendance summary with check-in/out, overtime, and night hours.",
+    "payrollSummaryDesc": "Export payroll details: gross, net, taxes, earnings, and deductions per employee.",
+    "expiringDocumentsDesc": "List employee documents expiring within a specified timeframe.",
+    "assetSummaryDesc": "Export asset inventory with categories, status, and worksite locations.",
+    "transferHistoryDesc": "Report showing employee site transfers with dates and statuses.",
+    "daysAhead": "Days Ahead",
+    "noData": "No data found for the specified filters",
+    "exportError": "Failed to generate report"
   },
   "hakkedis": {
     "title": "Progress Billing",
+    "addNew": "New Progress Billing",
+    "period": "Period",
     "workItem": "Work Item",
     "unit": "Unit",
     "quantity": "Quantity",
@@ -503,7 +525,28 @@
     "totalAmount": "Total Amount",
     "team": "Team",
     "distributionPercent": "Distribution Percent",
-    "distributionAmount": "Distribution Amount"
+    "distributionAmount": "Distribution Amount",
+    "itemCount": "Item Count",
+    "draft": "Draft",
+    "submitted": "Submitted",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "financial": {
+    "title": "Financial Account",
+    "monthlyBalance": "Monthly Balance",
+    "earned": "Earned",
+    "paid": "Paid",
+    "balance": "Balance",
+    "cumulative": "Cumulative",
+    "payrollIncome": "Payroll Income",
+    "hakkedisIncome": "Hakkedis Income",
+    "totalIncome": "Total Income",
+    "totalPaid": "Total Paid",
+    "currentBalance": "Current Balance",
+    "month": "Month",
+    "noFinancialData": "No financial data found yet"
   },
   "user": {
     "title": "Users",

@@ -24,13 +24,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!rule) {
-      return error('Alert rule not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     return success(rule)
   } catch (err) {
     console.error('GET /api/alert-rules/[id] error:', err)
-    return error('Failed to fetch alert rule', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
     const body = await request.json()
@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Alert rule not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     if (body.code && body.code !== existing.code) {
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         where: { code: body.code },
       })
       if (duplicate) {
-        return error('An alert rule with this code already exists', 409)
+        return error('DUPLICATE_CODE', 409)
       }
     }
 
@@ -90,7 +90,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return success(rule)
   } catch (err) {
     console.error('PUT /api/alert-rules/[id] error:', err)
-    return error('Failed to update alert rule', 500)
+    return error('UPDATE_FAILED', 500)
   }
 }
 
@@ -99,7 +99,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const { id } = await params
 
@@ -108,7 +108,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!existing) {
-      return error('Alert rule not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     await prisma.alertRule.delete({ where: { id } })
@@ -124,6 +124,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return success({ message: 'Alert rule deleted successfully' })
   } catch (err) {
     console.error('DELETE /api/alert-rules/[id] error:', err)
-    return error('Failed to delete alert rule', 500)
+    return error('DELETE_FAILED', 500)
   }
 }

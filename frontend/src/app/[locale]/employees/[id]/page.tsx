@@ -13,11 +13,12 @@ import { useLocaleStore, getLocalizedName } from '@/store/locale-store'
 import apiClient from '@/lib/api-client'
 import {
   ArrowLeft, Save, User, IdCard, Briefcase, Building2, Wallet,
-  FileText, Clock, Calendar, Package, ArrowRightLeft, Upload,
+  FileText, Clock, Calendar, Package, ArrowRightLeft, Upload, TrendingUp,
 } from 'lucide-react'
 import { DocumentsTab } from '@/components/employee/documents-tab'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
-type Tab = 'general' | 'identity' | 'workStatus' | 'employment' | 'salary' | 'documents' | 'attendance' | 'leaves' | 'assets' | 'transfers'
+type Tab = 'general' | 'identity' | 'workStatus' | 'employment' | 'salary' | 'documents' | 'attendance' | 'leaves' | 'assets' | 'transfers' | 'financial'
 
 const TABS: { key: Tab; icon: React.ElementType; labelKey: string }[] = [
   { key: 'general', icon: User, labelKey: 'employee.general' },
@@ -25,6 +26,7 @@ const TABS: { key: Tab; icon: React.ElementType; labelKey: string }[] = [
   { key: 'workStatus', icon: Briefcase, labelKey: 'workStatus.title' },
   { key: 'employment', icon: Building2, labelKey: 'employment.title' },
   { key: 'salary', icon: Wallet, labelKey: 'salary.title' },
+  { key: 'financial', icon: TrendingUp, labelKey: 'financial.title' },
   { key: 'documents', icon: FileText, labelKey: 'document.title' },
   { key: 'attendance', icon: Clock, labelKey: 'attendance.title' },
   { key: 'leaves', icon: Calendar, labelKey: 'leave.title' },
@@ -54,6 +56,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
   const [leaves, setLeaves] = useState<any[]>([])
   const [assets, setAssets] = useState<any[]>([])
   const [transfers, setTransfers] = useState<any[]>([])
+  const [financial, setFinancial] = useState<any>(null)
 
   // Dictionaries
   const [nationalities, setNationalities] = useState<any[]>([])
@@ -125,6 +128,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
       } else if (tab === 'transfers' && transfers.length === 0) {
         const { data } = await apiClient.get(`/transfers?employeeId=${id}&limit=50`)
         setTransfers(data?.data || [])
+      } else if (tab === 'financial' && !financial) {
+        const { data } = await apiClient.get(`/employees/${id}/financial`)
+        setFinancial(data?.data || null)
       }
     } catch { /* ignore */ }
   }
@@ -290,9 +296,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                 <h1 className="text-2xl font-bold">{employee.firstName} {employee.lastName}</h1>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="font-mono">{employee.employeeNo}</span>
-                  <Badge variant={employee.status === 'ACTIVE' ? 'success' : 'secondary'}>{employee.status}</Badge>
+                  <Badge variant={employee.status === 'ACTIVE' ? 'success' : 'secondary'}>{t(`common.${employee.status?.toLowerCase()}`) || employee.status}</Badge>
                   {employee.workStatus?.workStatusType && (
-                    <Badge variant="default">{employee.workStatus.workStatusType}</Badge>
+                    <Badge variant="default">{t(`workStatus.${employee.workStatus.workStatusType.toLowerCase().replace('_', '')}`) || employee.workStatus.workStatusType}</Badge>
                   )}
                 </div>
               </div>
@@ -415,7 +421,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                 <FormInput label={t('employment.startDate')} value={employment.startDate?.slice(0, 10)} type="date" onChange={(v: string) => updateField(setEmployment, 'startDate', v)} />
                 <FormInput label={t('employment.endDate')} value={employment.endDate?.slice(0, 10)} type="date" onChange={(v: string) => updateField(setEmployment, 'endDate', v)} />
                 <SelectField label={t('employment.contractType')} value={employment.contractType} onChange={(v: string) => updateField(setEmployment, 'contractType', v)}
-                  options={[{ value: 'INDEFINITE', label: 'Indefinite' }, { value: 'FIXED_TERM', label: 'Fixed Term' }, { value: 'CIVIL', label: 'Civil' }, { value: 'SUBCONTRACT', label: 'Subcontract' }]} />
+                  options={[{ value: 'INDEFINITE', label: t('employment.indefinite') }, { value: 'FIXED_TERM', label: t('employment.fixedTerm') }, { value: 'CIVIL', label: t('employment.civil') }, { value: 'SUBCONTRACT', label: t('employment.subcontract') }]} />
                 <FormInput label={t('employment.contractNo')} value={employment.contractNo} onChange={(v: string) => updateField(setEmployment, 'contractNo', v)} />
                 <FormInput label={t('employment.contractDate')} value={employment.contractDate?.slice(0, 10)} type="date" onChange={(v: string) => updateField(setEmployment, 'contractDate', v)} />
               </div>
@@ -476,7 +482,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                     {attendance.map((r: any) => (
                       <tr key={r.id} className="border-t">
                         <td className="p-3">{r.date?.slice(0, 10)}</td>
-                        <td className="p-3"><Badge variant="secondary">{r.attendanceType}</Badge></td>
+                        <td className="p-3"><Badge variant="secondary">{t(`attendance.${r.attendanceType === 'NORMAL' ? 'normal' : r.attendanceType === 'OVERTIME' ? 'overtime' : r.attendanceType === 'NIGHT_SHIFT' ? 'nightShift' : r.attendanceType === 'HOLIDAY' ? 'holiday' : r.attendanceType === 'HALF_DAY' ? 'halfDay' : r.attendanceType === 'ABSENT' ? 'absent' : r.attendanceType === 'ON_LEAVE' ? 'onLeave' : 'restDay'}`) || r.attendanceType}</Badge></td>
                         <td className="p-3 text-right font-mono">{Number(r.totalHours)}</td>
                         <td className="p-3 text-right font-mono">{Number(r.overtimeHours)}</td>
                         <td className="p-3">{r.worksite?.name || '-'}</td>
@@ -513,7 +519,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                         <td className="p-3">{l.startDate?.slice(0, 10)}</td>
                         <td className="p-3">{l.endDate?.slice(0, 10)}</td>
                         <td className="p-3 text-right">{l.totalDays}</td>
-                        <td className="p-3"><Badge variant={l.status === 'APPROVED' ? 'success' : l.status === 'REJECTED' ? 'destructive' : 'warning'}>{l.status}</Badge></td>
+                        <td className="p-3"><Badge variant={l.status === 'APPROVED' ? 'success' : l.status === 'REJECTED' ? 'destructive' : 'warning'}>{t(`common.${l.status?.toLowerCase()}`) || l.status}</Badge></td>
                       </tr>
                     ))}
                   </tbody>
@@ -545,7 +551,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                         <td className="p-3 font-mono text-xs">{a.assetNo}</td>
                         <td className="p-3">{a.name}</td>
                         <td className="p-3">{getLocalizedName(a.category, localeStore.locale)}</td>
-                        <td className="p-3"><Badge variant="secondary">{a.status}</Badge></td>
+                        <td className="p-3"><Badge variant="secondary">{t(`asset.${a.status?.toLowerCase()}`) || a.status}</Badge></td>
                       </tr>
                     ))}
                   </tbody>
@@ -578,8 +584,8 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
                         <td className="p-3">{tr.transferDate?.slice(0, 10)}</td>
                         <td className="p-3">{tr.fromWorksite?.name || '-'}</td>
                         <td className="p-3">{tr.toWorksite?.name || '-'}</td>
-                        <td className="p-3">{tr.transferType}</td>
-                        <td className="p-3"><Badge variant={tr.status === 'COMPLETED' ? 'success' : 'warning'}>{tr.status}</Badge></td>
+                        <td className="p-3">{t(`transfer.${tr.transferType?.toLowerCase()}`) || tr.transferType}</td>
+                        <td className="p-3"><Badge variant={tr.status === 'COMPLETED' ? 'success' : 'warning'}>{t(`common.${tr.status?.toLowerCase()}`) || tr.status}</Badge></td>
                       </tr>
                     ))}
                   </tbody>
@@ -587,6 +593,130 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ local
               )}
             </CardContent>
           </Card>
+        )}
+
+        {activeTab === 'financial' && (
+          <div className="space-y-4">
+            {/* Summary Cards */}
+            {financial ? (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-sm text-muted-foreground">{t('financial.payrollIncome')}</p>
+                      <p className="text-2xl font-bold">
+                        {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(financial.totalPayroll || 0)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-sm text-muted-foreground">{t('financial.hakkedisIncome')}</p>
+                      <p className="text-2xl font-bold">
+                        {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(financial.totalHakkedis || 0)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-sm text-muted-foreground">{t('financial.totalPaid')}</p>
+                      <p className="text-2xl font-bold text-success">
+                        {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(financial.totalPaid || 0)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <p className="text-sm text-muted-foreground">{t('financial.currentBalance')}</p>
+                      <p className={`text-2xl font-bold ${(financial.currentBalance || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(financial.currentBalance || 0)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Chart */}
+                {financial.months?.length > 0 && (
+                  <Card>
+                    <CardHeader><CardTitle>{t('financial.monthlyBalance')}</CardTitle></CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={financial.months}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="period" tick={{ fontSize: 12 }} />
+                          <YAxis tick={{ fontSize: 12 }} />
+                          <Tooltip
+                            formatter={(value: number) =>
+                              new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(value)
+                            }
+                          />
+                          <Legend />
+                          <Bar dataKey="payroll" name={t('financial.payrollIncome')} fill="#3b82f6" />
+                          <Bar dataKey="hakkedis" name={t('financial.hakkedisIncome')} fill="#10b981" />
+                          <Bar dataKey="paid" name={t('financial.paid')} fill="#f59e0b" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Monthly Table */}
+                <Card>
+                  <CardHeader><CardTitle>{t('financial.monthlyBalance')}</CardTitle></CardHeader>
+                  <CardContent>
+                    {financial.months?.length > 0 ? (
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted/50">
+                          <tr>
+                            <th className="p-3 text-left">{t('financial.month')}</th>
+                            <th className="p-3 text-right">{t('financial.payrollIncome')}</th>
+                            <th className="p-3 text-right">{t('financial.hakkedisIncome')}</th>
+                            <th className="p-3 text-right">{t('financial.totalIncome')}</th>
+                            <th className="p-3 text-right">{t('financial.paid')}</th>
+                            <th className="p-3 text-right">{t('financial.balance')}</th>
+                            <th className="p-3 text-right">{t('financial.cumulative')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {financial.months.map((m: any) => (
+                            <tr key={m.period} className="border-t">
+                              <td className="p-3 font-mono font-medium">{m.period}</td>
+                              <td className="p-3 text-right font-mono">
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(m.payroll || 0)} ₽
+                              </td>
+                              <td className="p-3 text-right font-mono">
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(m.hakkedis || 0)} ₽
+                              </td>
+                              <td className="p-3 text-right font-mono font-medium">
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format((m.payroll || 0) + (m.hakkedis || 0))} ₽
+                              </td>
+                              <td className="p-3 text-right font-mono text-success">
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(m.paid || 0)} ₽
+                              </td>
+                              <td className="p-3 text-right font-mono">
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(m.balance || 0)} ₽
+                              </td>
+                              <td className={`p-3 text-right font-mono font-bold ${(m.cumulative || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+                                {new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(m.cumulative || 0)} ₽
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-center text-muted-foreground py-8">{t('financial.noFinancialData')}</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-center text-muted-foreground py-8">{t('financial.noFinancialData')}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
       </div>
     </AppLayout>

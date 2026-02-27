@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     return paginated(data, total, page, limit)
   } catch (err) {
     console.error('GET /api/payroll error:', err)
-    return error('Failed to fetch payroll runs', 500)
+    return error('FETCH_FAILED', 500)
   }
 }
 
@@ -57,13 +57,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser(request)
-    if (!user) return error('Unauthorized', 401)
+    if (!user) return error('UNAUTHORIZED', 401)
 
     const body = await request.json()
     const { period, worksiteId } = body
 
     if (!period) {
-      return error('Period is required (e.g. 2025-01)', 400)
+      return error('FIELDS_REQUIRED', 400)
     }
 
     // Check for duplicate
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existing) {
-      return error('A payroll run already exists for this period and worksite', 409)
+      return error('ALREADY_EXISTS', 409)
     }
 
     const payrollRun = await prisma.payrollRun.create({
@@ -110,6 +110,6 @@ export async function POST(request: NextRequest) {
     return success(payrollRun, 201)
   } catch (err) {
     console.error('POST /api/payroll error:', err)
-    return error('Failed to create payroll run', 500)
+    return error('CREATE_FAILED', 500)
   }
 }

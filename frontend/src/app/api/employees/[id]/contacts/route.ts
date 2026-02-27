@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!employee) {
-      return error('Employee not found', 404)
+      return error('NOT_FOUND', 404)
     }
 
     const contacts = await prisma.employeeContact.findMany({

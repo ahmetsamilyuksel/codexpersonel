@@ -241,6 +241,7 @@
     "residencePermitEnd": "Окончание ВНЖ"
   },
   "employment": {
+    "title": "Трудоустройство",
     "worksite": "Объект",
     "team": "Бригада",
     "supervisor": "Руководитель",
@@ -252,13 +253,22 @@
     "pieceRate": "Сдельная",
     "contractType": "Тип договора",
     "contractDate": "Дата договора",
+    "contractNo": "Номер договора",
     "hireDate": "Дата приёма",
+    "startDate": "Дата начала",
+    "endDate": "Дата окончания",
+    "position": "Должность",
+    "employeeType": "Тип сотрудника",
     "actualStartDate": "Фактическая дата начала",
     "probationStart": "Начало испытательного срока",
     "probationEnd": "Окончание испытательного срока",
     "terminationDate": "Дата увольнения",
     "terminationReason": "Причина увольнения",
-    "rehire": "Повторный приём"
+    "rehire": "Повторный приём",
+    "indefinite": "Бессрочный",
+    "fixedTerm": "Срочный",
+    "civil": "Гражданско-правовой",
+    "subcontract": "Субподряд"
   },
   "salary": {
     "title": "Зарплата",
@@ -490,12 +500,24 @@
     "hireTermination": "Приём / Увольнение",
     "probationEnding": "Окончание испытательного срока",
     "generate": "Сформировать",
+    "generating": "Формирование...",
     "exportExcel": "Экспорт в Excel",
     "exportCsv": "Экспорт в CSV",
-    "exportPdf": "Экспорт в PDF"
+    "exportPdf": "Экспорт в PDF",
+    "employeeListDesc": "Экспорт полного списка сотрудников с фильтрацией по статусу или объекту.",
+    "attendanceSummaryDesc": "Сводка табеля с временем прихода/ухода, сверхурочными и ночными часами.",
+    "payrollSummaryDesc": "Экспорт данных расчёта: гросс, нет, налоги, начисления и удержания по сотрудникам.",
+    "expiringDocumentsDesc": "Список документов сотрудников с истекающим сроком действия.",
+    "assetSummaryDesc": "Экспорт инвентаря с категориями, статусом и объектами.",
+    "transferHistoryDesc": "Отчёт о переводах сотрудников между объектами.",
+    "daysAhead": "Дней вперёд",
+    "noData": "Данные не найдены по указанным фильтрам",
+    "exportError": "Не удалось сформировать отчёт"
   },
   "hakkedis": {
     "title": "Хакедиш",
+    "addNew": "Новый хакедиш",
+    "period": "Период",
     "workItem": "Позиция работ",
     "unit": "Единица измерения",
     "quantity": "Количество",
@@ -503,7 +525,28 @@
     "totalAmount": "Общая сумма",
     "team": "Бригада",
     "distributionPercent": "Процент распределения",
-    "distributionAmount": "Сумма распределения"
+    "distributionAmount": "Сумма распределения",
+    "itemCount": "Кол-во позиций",
+    "draft": "Черновик",
+    "submitted": "Отправлено",
+    "approved": "Утверждено",
+    "rejected": "Отклонено",
+    "cancelled": "Отменено"
+  },
+  "financial": {
+    "title": "Финансовый учёт",
+    "monthlyBalance": "Ежемесячный баланс",
+    "earned": "Начислено",
+    "paid": "Выплачено",
+    "balance": "Баланс",
+    "cumulative": "Накопительно",
+    "payrollIncome": "Зарплата",
+    "hakkedisIncome": "Хакедиш",
+    "totalIncome": "Общий доход",
+    "totalPaid": "Всего выплачено",
+    "currentBalance": "Текущий баланс",
+    "month": "Месяц",
+    "noFinancialData": "Финансовые данные пока не найдены"
   },
   "user": {
     "title": "Пользователи",
