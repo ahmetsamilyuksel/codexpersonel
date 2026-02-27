@@ -27,7 +27,7 @@ export function GlobalSearch() {
   const [selectedIdx, setSelectedIdx] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const debounceRef = useRef<NodeJS.Timeout>()
+  const debounceRef = useRef<NodeJS.Timeout>(undefined)
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {

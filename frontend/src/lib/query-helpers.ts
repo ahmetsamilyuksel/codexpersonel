@@ -108,7 +108,7 @@ export function buildWhereClause(
     // Support nested filters using dot notation (e.g., 'employment.worksiteId')
     const parts = key.split('.')
     if (parts.length > 1) {
-      let nested: Record<string, any> = value
+      let nested: Record<string, any> = value as unknown as Record<string, any>
       for (let i = parts.length - 1; i >= 1; i--) {
         nested = { [parts[i]]: nested }
       }
