@@ -128,7 +128,7 @@ export default function TransfersPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to create transfer')
+      setFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -275,7 +275,7 @@ export default function TransfersPage() {
                   setPage(1)
                 }}
               >
-                <option value="">{t('common.all')} Status</option>
+                <option value="">{t('common.all')} {t('common.status')}</option>
                 <option value="PENDING">{t('common.pending')}</option>
                 <option value="APPROVED">{t('common.approved')}</option>
                 <option value="COMPLETED">{t('common.completed')}</option>

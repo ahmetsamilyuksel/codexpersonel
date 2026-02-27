@@ -125,7 +125,7 @@ export default function AssetsPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to create asset')
+      setFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -217,7 +217,7 @@ export default function AssetsPage() {
     },
     {
       key: 'assignee',
-      header: 'Assignee',
+      header: t('common.assignee'),
       render: (item) => {
         const assignee = getCurrentAssignee(item)
         return assignee ? (
@@ -318,7 +318,7 @@ export default function AssetsPage() {
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
               >
-                <option value="">{t('common.all')} Status</option>
+                <option value="">{t('common.all')} {t('common.status')}</option>
                 <option value="AVAILABLE">{t('asset.available')}</option>
                 <option value="ASSIGNED">{t('asset.assigned')}</option>
                 <option value="DAMAGED">{t('asset.damaged')}</option>
@@ -410,8 +410,8 @@ export default function AssetsPage() {
                     ))}
                   </select>
                 </div>
-                <Input label="Purchase Price" type="number" value={newAsset.purchasePrice} onChange={(e) => setNewAsset((p) => ({ ...p, purchasePrice: e.target.value }))} />
-                <Input label="Deposit" type="number" value={newAsset.depositAmount} onChange={(e) => setNewAsset((p) => ({ ...p, depositAmount: e.target.value }))} />
+                <Input label={t('common.purchasePrice')} type="number" value={newAsset.purchasePrice} onChange={(e) => setNewAsset((p) => ({ ...p, purchasePrice: e.target.value }))} />
+                <Input label={t('common.depositAmount')} type="number" value={newAsset.depositAmount} onChange={(e) => setNewAsset((p) => ({ ...p, depositAmount: e.target.value }))} />
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <Button onClick={() => createMutation.mutate(newAsset)} loading={createMutation.isPending}>

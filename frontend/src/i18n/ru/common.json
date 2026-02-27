@@ -82,7 +82,29 @@
     "bulkActions": "Массовые действия",
     "darkMode": "Тёмная тема",
     "lightMode": "Светлая тема",
-    "language": "Язык"
+    "language": "Язык",
+    "suspended": "Приостановлен",
+    "terminated": "Уволен",
+    "onLeave": "В отпуске",
+    "cancelled": "Отменено",
+    "locked": "Заблокировано",
+    "submitted": "Отправлено",
+    "calculated": "Рассчитано",
+    "paid": "Оплачено",
+    "year": "Год",
+    "severity": "Серьёзность",
+    "unread": "Непрочитанные",
+    "readStatus": "Прочитанные",
+    "purchasePrice": "Цена покупки",
+    "depositAmount": "Депозит",
+    "assignee": "Ответственный",
+    "generateAlerts": "Сгенерировать уведомления",
+    "selectWorksite": "Выберите объект для просмотра",
+    "selectWorksitePayroll": "Выберите объект и период для управления зарплатой",
+    "createPayrollToBegin": "Создайте расчёт зарплаты для начала",
+    "codeAndNameRequired": "Код и Наименование обязательны",
+    "createFailed": "Не удалось создать",
+    "disposed": "Списано"
   },
   "auth": {
     "login": "Войти",
@@ -329,7 +351,8 @@
     "returned": "Возвращено",
     "damaged": "Повреждено",
     "lost": "Утеряно",
-    "available": "Доступно"
+    "available": "Доступно",
+    "disposed": "Списано"
   },
   "leave": {
     "title": "Отпуска",
@@ -452,6 +475,26 @@
     "team": "Бригада",
     "distributionPercent": "Процент распределения",
     "distributionAmount": "Сумма распределения"
+  },
+  "user": {
+    "title": "Пользователи",
+    "management": "Пользователи и Роли",
+    "addNew": "Новый пользователь",
+    "email": "Эл. почта",
+    "password": "Пароль",
+    "roles": "Роли",
+    "lastLogin": "Последний вход",
+    "suspended": "Заблокирован"
+  },
+  "role": {
+    "title": "Роли",
+    "addNew": "Новая роль",
+    "code": "Код роли",
+    "permissions": "Разрешения",
+    "type": "Тип",
+    "system": "Системная",
+    "siteScoped": "Привязана к объекту",
+    "custom": "Пользовательская"
   },
   "help": {
     "employeeNo": "Система автоматически генерирует уникальные табельные номера. Формат можно изменить в Настройки > Правила нумерации.",

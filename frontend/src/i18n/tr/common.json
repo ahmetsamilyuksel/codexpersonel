@@ -82,7 +82,29 @@
     "bulkActions": "Toplu İşlemler",
     "darkMode": "Karanlık Mod",
     "lightMode": "Aydınlık Mod",
-    "language": "Dil"
+    "language": "Dil",
+    "suspended": "Askıya Alınmış",
+    "terminated": "İşten Çıkarılmış",
+    "onLeave": "İzinde",
+    "cancelled": "İptal Edildi",
+    "locked": "Kilitli",
+    "submitted": "Gönderildi",
+    "calculated": "Hesaplandı",
+    "paid": "Ödendi",
+    "year": "Yıl",
+    "severity": "Önem Derecesi",
+    "unread": "Okunmamış",
+    "readStatus": "Okunmuş",
+    "purchasePrice": "Satın Alma Fiyatı",
+    "depositAmount": "Depozito",
+    "assignee": "Zimmetli Kişi",
+    "generateAlerts": "Uyarıları Oluştur",
+    "selectWorksite": "Görüntülemek için şantiye seçin",
+    "selectWorksitePayroll": "Bordro yönetmek için şantiye ve dönem seçin",
+    "createPayrollToBegin": "Başlamak için bordro çalıştırın",
+    "codeAndNameRequired": "Kod ve Ad zorunludur",
+    "createFailed": "Oluşturma başarısız oldu",
+    "disposed": "Elden Çıkarılmış"
   },
   "auth": {
     "login": "Giriş Yap",
@@ -329,7 +351,8 @@
     "returned": "İade Edildi",
     "damaged": "Hasarlı",
     "lost": "Kayıp",
-    "available": "Müsait"
+    "available": "Müsait",
+    "disposed": "Elden Çıkarılmış"
   },
   "leave": {
     "title": "İzinler",
@@ -452,6 +475,26 @@
     "team": "Ekip",
     "distributionPercent": "Dağılım Yüzdesi",
     "distributionAmount": "Dağılım Tutarı"
+  },
+  "user": {
+    "title": "Kullanıcılar",
+    "management": "Kullanıcılar ve Roller",
+    "addNew": "Yeni Kullanıcı",
+    "email": "E-posta",
+    "password": "Şifre",
+    "roles": "Roller",
+    "lastLogin": "Son Giriş",
+    "suspended": "Askıya Alınmış"
+  },
+  "role": {
+    "title": "Roller",
+    "addNew": "Yeni Rol",
+    "code": "Rol Kodu",
+    "permissions": "İzinler",
+    "type": "Tür",
+    "system": "Sistem",
+    "siteScoped": "Şantiye Kapsamlı",
+    "custom": "Özel"
   },
   "help": {
     "employeeNo": "Sistem benzersiz sicil numaralarını otomatik oluşturur. Format, Ayarlar > Numaralandırma Kuralları bölümünden değiştirilebilir.",

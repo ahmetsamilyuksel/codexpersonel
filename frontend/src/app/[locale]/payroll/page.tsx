@@ -179,7 +179,7 @@ export default function PayrollPage() {
       PAID: 'success',
       LOCKED: 'secondary',
     }
-    return <Badge variant={variants[s] || 'secondary'}>{s}</Badge>
+    return <Badge variant={variants[s] || 'secondary'}>{t(`common.${s.toLowerCase()}`)}</Badge>
   }
 
   const columns: Column<PayrollItemRow>[] = [
@@ -385,14 +385,14 @@ export default function PayrollPage() {
             emptyMessage={
               payrollRun
                 ? t('common.noData')
-                : 'Create a payroll run to begin'
+                : t('common.createPayrollToBegin')
             }
           />
         ) : (
           <Card>
             <CardContent className="pt-4">
               <p className="text-center text-muted-foreground py-8">
-                Select a worksite and period to manage payroll
+                {t('common.selectWorksitePayroll')}
               </p>
             </CardContent>
           </Card>

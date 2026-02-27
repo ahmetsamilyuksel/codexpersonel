@@ -128,7 +128,7 @@ export default function UsersPage() {
       setUserFormError('')
     },
     onError: (err: any) => {
-      setUserFormError(err.response?.data?.error || 'Failed to create user')
+      setUserFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -141,7 +141,7 @@ export default function UsersPage() {
       setRoleFormError('')
     },
     onError: (err: any) => {
-      setRoleFormError(err.response?.data?.error || 'Failed to create role')
+      setRoleFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -176,14 +176,14 @@ export default function UsersPage() {
     },
     {
       key: 'email',
-      header: t('user.email') || 'Email',
+      header: t('user.email'),
       render: (item) => (
         <span className="text-sm">{item.email}</span>
       ),
     },
     {
       key: 'roles',
-      header: t('user.roles') || 'Roles',
+      header: t('user.roles'),
       render: (item) => (
         <div className="flex flex-wrap gap-1">
           {item.userRoles.map((ur) => (
@@ -215,7 +215,7 @@ export default function UsersPage() {
     },
     {
       key: 'lastLogin',
-      header: t('user.lastLogin') || 'Last Login',
+      header: t('user.lastLogin'),
       render: (item) =>
         item.lastLoginAt
           ? new Date(item.lastLoginAt).toLocaleString()
@@ -223,7 +223,7 @@ export default function UsersPage() {
     },
     {
       key: 'createdAt',
-      header: t('common.createdAt') || 'Created',
+      header: t('common.createdAt'),
       render: (item) => new Date(item.createdAt).toLocaleDateString(),
     },
   ]
@@ -232,7 +232,7 @@ export default function UsersPage() {
   const roleColumns: Column<RoleRow>[] = [
     {
       key: 'code',
-      header: t('role.code') || 'Code',
+      header: t('role.code'),
       render: (item) => (
         <span className="font-mono text-xs font-medium">{item.code}</span>
       ),
@@ -246,7 +246,7 @@ export default function UsersPage() {
     },
     {
       key: 'description',
-      header: t('common.description') || 'Description',
+      header: t('common.description'),
       render: (item) => (
         <span className="text-sm text-muted-foreground truncate max-w-[250px] block">
           {item.description || '-'}
@@ -255,7 +255,7 @@ export default function UsersPage() {
     },
     {
       key: 'permissions',
-      header: t('role.permissions') || 'Permissions',
+      header: t('role.permissions'),
       render: (item) => (
         <Badge variant="secondary">
           <Key className="h-3 w-3 mr-1" />
@@ -265,7 +265,7 @@ export default function UsersPage() {
     },
     {
       key: 'users',
-      header: t('user.title') || 'Users',
+      header: t('user.title'),
       render: (item) => (
         <Badge variant="secondary">
           <Users className="h-3 w-3 mr-1" />
@@ -275,22 +275,22 @@ export default function UsersPage() {
     },
     {
       key: 'type',
-      header: t('role.type') || 'Type',
+      header: t('role.type'),
       render: (item) => (
         <div className="flex items-center gap-1">
           {item.isSystem && (
             <Badge variant="default" className="text-xs">
-              {t('role.system') || 'System'}
+              {t('role.system')}
             </Badge>
           )}
           {item.siteScoped && (
             <Badge variant="warning" className="text-xs">
-              {t('role.siteScoped') || 'Site Scoped'}
+              {t('role.siteScoped')}
             </Badge>
           )}
           {!item.isSystem && !item.siteScoped && (
             <span className="text-xs text-muted-foreground">
-              {t('role.custom') || 'Custom'}
+              {t('role.custom')}
             </span>
           )}
         </div>
@@ -306,7 +306,7 @@ export default function UsersPage() {
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">
-              {t('user.management') || 'Users & Roles'}
+              {t('user.management')}
             </h1>
             <HelpTooltip helpKey="users" />
           </div>
@@ -314,13 +314,13 @@ export default function UsersPage() {
             {activeTab === 'users' && (
               <Button onClick={() => setShowAddUser(true)}>
                 <Plus className="h-4 w-4 mr-1" />
-                {t('user.addNew') || 'New User'}
+                {t('user.addNew')}
               </Button>
             )}
             {activeTab === 'roles' && (
               <Button onClick={() => setShowAddRole(true)}>
                 <Plus className="h-4 w-4 mr-1" />
-                {t('role.addNew') || 'New Role'}
+                {t('role.addNew')}
               </Button>
             )}
           </div>
@@ -338,7 +338,7 @@ export default function UsersPage() {
           >
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              {t('user.title') || 'Users'}
+              {t('user.title')}
             </div>
           </button>
           <button
@@ -351,7 +351,7 @@ export default function UsersPage() {
           >
             <div className="flex items-center gap-2">
               <Key className="h-4 w-4" />
-              {t('role.title') || 'Roles'}
+              {t('role.title')}
               {roles.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {roles.length}
@@ -387,7 +387,7 @@ export default function UsersPage() {
                     <option value="">{t('common.all')} {t('common.status')}</option>
                     <option value="ACTIVE">{t('common.active')}</option>
                     <option value="INACTIVE">{t('common.inactive')}</option>
-                    <option value="SUSPENDED">{t('user.suspended') || 'Suspended'}</option>
+                    <option value="SUSPENDED">{t('user.suspended')}</option>
                   </select>
                   {usersData?.pagination && (
                     <div className="ml-auto text-sm text-muted-foreground">
@@ -404,7 +404,7 @@ export default function UsersPage() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">
-                      {t('user.addNew') || 'New User'}
+                      {t('user.addNew')}
                     </CardTitle>
                     <Button
                       variant="ghost"
@@ -423,26 +423,26 @@ export default function UsersPage() {
                   )}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <Input
-                      label={t('employee.firstName') || 'First Name'}
+                      label={t('employee.firstName')}
                       value={newUser.firstName}
                       onChange={(e) => setNewUser((p) => ({ ...p, firstName: e.target.value }))}
                       required
                     />
                     <Input
-                      label={t('employee.lastName') || 'Last Name'}
+                      label={t('employee.lastName')}
                       value={newUser.lastName}
                       onChange={(e) => setNewUser((p) => ({ ...p, lastName: e.target.value }))}
                       required
                     />
                     <Input
-                      label={t('user.email') || 'Email'}
+                      label={t('user.email')}
                       type="email"
                       value={newUser.email}
                       onChange={(e) => setNewUser((p) => ({ ...p, email: e.target.value }))}
                       required
                     />
                     <Input
-                      label={t('user.password') || 'Password'}
+                      label={t('user.password')}
                       type="password"
                       value={newUser.password}
                       onChange={(e) => setNewUser((p) => ({ ...p, password: e.target.value }))}
@@ -452,7 +452,7 @@ export default function UsersPage() {
                   {/* Role Selection */}
                   <div className="mt-3">
                     <label className="block text-sm font-medium mb-2">
-                      {t('user.roles') || 'Roles'}
+                      {t('user.roles')}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {roles.map((role) => (
@@ -517,7 +517,7 @@ export default function UsersPage() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">
-                      {t('role.addNew') || 'New Role'}
+                      {t('role.addNew')}
                     </CardTitle>
                     <Button
                       variant="ghost"
@@ -536,7 +536,7 @@ export default function UsersPage() {
                   )}
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     <Input
-                      label={t('role.code') || 'Code'}
+                      label={t('role.code')}
                       value={newRole.code}
                       onChange={(e) =>
                         setNewRole((p) => ({ ...p, code: e.target.value.toUpperCase() }))
@@ -569,7 +569,7 @@ export default function UsersPage() {
                       required
                     />
                     <Input
-                      label={t('common.description') || 'Description'}
+                      label={t('common.description')}
                       value={newRole.description}
                       onChange={(e) =>
                         setNewRole((p) => ({ ...p, description: e.target.value }))
@@ -586,7 +586,7 @@ export default function UsersPage() {
                         }
                         className="rounded border-input"
                       />
-                      {t('role.siteScoped') || 'Site Scoped'}
+                      {t('role.siteScoped')}
                     </label>
                   </div>
                   <div className="flex items-center gap-2 mt-3">

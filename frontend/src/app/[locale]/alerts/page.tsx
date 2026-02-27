@@ -263,7 +263,7 @@ export default function AlertsPage() {
             loading={generateMutation.isPending}
           >
             <RefreshCw className="h-4 w-4 mr-1" />
-            Generate Alerts
+            {t('common.generateAlerts')}
           </Button>
         </div>
 
@@ -327,7 +327,7 @@ export default function AlertsPage() {
                   setPage(1)
                 }}
               >
-                <option value="">{t('common.all')} Severity</option>
+                <option value="">{t('common.all')} {t('common.severity')}</option>
                 <option value="CRITICAL">{t('alert.critical')}</option>
                 <option value="WARNING">{t('alert.warning')}</option>
                 <option value="INFO">{t('alert.info')}</option>
@@ -340,9 +340,9 @@ export default function AlertsPage() {
                   setPage(1)
                 }}
               >
-                <option value="">All</option>
-                <option value="unread">Unread</option>
-                <option value="read">Read</option>
+                <option value="">{t('common.all')}</option>
+                <option value="unread">{t('common.unread')}</option>
+                <option value="read">{t('common.readStatus')}</option>
               </select>
               {data?.pagination && (
                 <div className="ml-auto text-sm text-muted-foreground">

@@ -104,7 +104,7 @@ export default function WorksitesPage() {
       setFormError('')
     },
     onError: (err: any) => {
-      setFormError(err.response?.data?.error || 'Failed to create worksite')
+      setFormError(err.response?.data?.error || t('common.createFailed'))
     },
   })
 
@@ -121,7 +121,7 @@ export default function WorksitesPage() {
 
   const handleCreate = () => {
     if (!newWorksite.code || !newWorksite.name) {
-      setFormError('Code and Name are required')
+      setFormError(t('common.codeAndNameRequired'))
       return
     }
     createMutation.mutate(newWorksite)
@@ -134,7 +134,7 @@ export default function WorksitesPage() {
       SUSPENDED: 'warning',
       CANCELLED: 'destructive',
     }
-    return <Badge variant={variants[status] || 'secondary'}>{status}</Badge>
+    return <Badge variant={variants[status] || 'secondary'}>{t(`common.${status.toLowerCase()}`)}</Badge>
   }
 
   const columns: Column<WorksiteRow>[] = [
@@ -240,7 +240,7 @@ export default function WorksitesPage() {
                 <option value="">{t('common.all')}</option>
                 <option value="ACTIVE">{t('common.active')}</option>
                 <option value="COMPLETED">{t('common.completed')}</option>
-                <option value="SUSPENDED">Suspended</option>
+                <option value="SUSPENDED">{t('common.suspended')}</option>
               </select>
               {data?.pagination && (
                 <div className="ml-auto text-sm text-muted-foreground">
